@@ -96,6 +96,7 @@ function renderMarquee(c) {
     'one day',
     'come walk a lap',
     `${num(c.totals.distance_km)} km uphill`,
+    `first lap ${c.first_lap}`,
     'bring snacks',
   ];
   const run = bits.map((b) => `${b}<span class="sep">▲</span>`).join('');
@@ -198,10 +199,13 @@ function setLive(loc) {
 
   if (loc.gained_m != null) {
     progress.hidden = false;
-    const pct = Math.min(100, (loc.gained_m / challenge.target_m) * 100);
+    const gained = Math.round(loc.gained_m);
+    const left = Math.max(0, challenge.target_m - gained);
+    const pct = Math.min(100, (gained / challenge.target_m) * 100);
     $('#progress-bar').style.width = `${pct.toFixed(1)}%`;
-    $('#progress-label').textContent =
-      `${num(Math.round(loc.gained_m))} / ${num(challenge.target_m)} m (${pct.toFixed(0)}%)`;
+    $('#progress-label').textContent = left
+      ? `${num(gained)} m climbed · ${num(left)} m to go`
+      : `${num(gained)} m — done. DONE!`;
   }
 
   if (!liveMarker) {
@@ -329,16 +333,15 @@ function renderLegend(c) {
 
 function renderPlan(c) {
   $('#plan-note').textContent =
-    `The running total crosses ${num(c.target_m)} m partway up lap ${c.totals.crossed_on_lap}. ` +
-    `Finishing that lap banks ${num(c.totals.gain_m)} m, a ${num(c.totals.gain_m - c.target_m)} m ` +
-    `buffer for when my watch and the map inevitably disagree.`;
+    `First lap leaves at ${c.first_lap} sharp. The ten laps bank ${num(c.totals.gain_m)} m; ` +
+    `the last ${num(c.target_m - c.totals.gain_m)} m I'll find along the way. ` +
+    `Pick a lap, hit Join, and I'll know to wait for you at the bottom.`;
 
   const byNum = new Map(c.variations.map((v) => [v.num, v]));
   const tbody = $('#plan-table tbody');
   for (const row of c.plan) {
     const v = byNum.get(row.variation);
     const tr = el('tr');
-    if (row.cum_gain_m >= c.target_m) tr.className = 'past-target';
     tr.append(el('td', 'mono', String(row.lap)));
 
     const vd = el('td');
@@ -350,7 +353,71 @@ function renderPlan(c) {
     tr.append(el('td', 'mono', `${row.distance_km} km`));
     tr.append(el('td', 'mono', `+${num(row.gain_m)} m`));
     tr.append(el('td', 'mono', `${num(row.cum_gain_m)} m`));
+
+    const crew = el('td', 'crew-cell');
+    const names = el('span', 'crew-names');
+    names.dataset.lap = String(row.lap);
+    const join = el('a', 'join-link', 'Join');
+    join.href = joinUrl(row.lap, v);
+    join.target = '_blank';
+    join.rel = 'noopener';
+    crew.append(names, join);
+    tr.append(crew);
+
     tbody.append(tr);
+  }
+
+  loadSignups(c);
+  setInterval(() => loadSignups(c), 5 * 60_000);
+}
+
+/* ---------------- lap sign-ups (GitHub issues as the guest list) ----------------
+   Joining opens a prefilled GitHub issue titled "Lap N — I'm in!". The board
+   reads the public issues API (unauthenticated, polled gently) and lists every
+   signed-up username under its lap. */
+
+const SIGNUP_API = 'https://api.github.com/repos/pkudzia/everesting/issues?state=open&per_page=100';
+
+function joinUrl(lap, v) {
+  const title = encodeURIComponent(`Lap ${lap} — I'm in!`);
+  const body = encodeURIComponent(
+    `I'm joining lap ${lap} (V${v.num}, ${v.distance_km} km, +${v.gain_m} m).\n\n` +
+    `Anything Pawel should know (pace, dog, snacks to share):\n`
+  );
+  return `https://github.com/pkudzia/everesting/issues/new?title=${title}&body=${body}`;
+}
+
+async function loadSignups(c) {
+  let issues;
+  try {
+    const res = await fetch(SIGNUP_API, { headers: { Accept: 'application/vnd.github+json' } });
+    if (!res.ok) return;
+    issues = await res.json();
+  } catch { return; }
+
+  const byLap = new Map();
+  for (const issue of issues) {
+    if (issue.pull_request) continue;
+    const m = /lap\s*(\d+)/i.exec(issue.title);
+    if (!m) continue;
+    const lap = +m[1];
+    if (lap < 1 || lap > c.totals.laps) continue;
+    if (!byLap.has(lap)) byLap.set(lap, []);
+    byLap.get(lap).push(issue.user.login);
+  }
+
+  let total = 0;
+  document.querySelectorAll('.crew-names').forEach((span) => {
+    const crew = byLap.get(+span.dataset.lap) || [];
+    total += crew.length;
+    span.textContent = crew.length ? crew.join(', ') : '';
+    span.title = crew.length ? `${crew.length} joining` : '';
+  });
+  const note = $('#crew-count');
+  if (note) {
+    note.textContent = total
+      ? `${total} ${total === 1 ? 'person has' : 'people have'} signed up so far.`
+      : 'No sign-ups yet — be the first name on the hill.';
   }
 }
 

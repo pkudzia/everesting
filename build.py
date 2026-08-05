@@ -133,8 +133,11 @@ VARIATIONS = [
 
 # The lap order for the day. Longer, gentler variations while fresh, the two
 # short steep lines saved for the end when every extra horizontal metre hurts.
-# Laps 9-11 repeat Variation 1 because by then the shortest lap wins.
-LAP_ORDER = [6, 5, 3, 7, 2, 4, 8, 1, 1, 1, 1]
+# Laps 9-10 repeat Variation 1 because by then the shortest lap wins. The laps
+# bank ~8,628 m; the rest of the 9,000 gets picked up along the way.
+LAP_ORDER = [6, 5, 3, 7, 2, 4, 8, 1, 1, 1]
+
+FIRST_LAP = "7:45 a.m."
 
 
 def haversine(a, b):
@@ -318,9 +321,11 @@ def main():
     challenge = {
         "name": "Everesting on Foot",
         "subtitle": (
-            "Eleven laps up the Squamish evac trails, eight different ways, "
-            "until the watch says 9,000 metres of climbing."
+            "Ten laps up the Squamish evac trails, eight different ways, "
+            "until the watch says 9,000 metres of climbing. First lap "
+            "leaves at 7:45 a.m."
         ),
+        "first_lap": FIRST_LAP,
         "target_m": TARGET_M,
         "totals": {
             "laps": len(plan),
@@ -336,7 +341,10 @@ def main():
     out = DOCS / "challenge.json"
     out.write_text(json.dumps(challenge, separators=(",", ":")))
     print(f"\nPlan: {len(plan)} laps, {total_gain} m over {total_km} km of climbing")
-    print(f"Crosses {TARGET_M} m on lap {crossed}")
+    if crossed:
+        print(f"Crosses {TARGET_M} m on lap {crossed}")
+    else:
+        print(f"Laps leave {TARGET_M - total_gain} m to pick up along the way")
     print(f"Wrote {out} ({out.stat().st_size / 1024:.0f} KB)")
 
 
