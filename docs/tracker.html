@@ -6,49 +6,77 @@
 <meta name="robots" content="noindex">
 <title>Everesting — phone tracker</title>
 <style>
+  /* Hallmark · genre: playful · theme: Hum (companion page to index) */
   :root {
-    --bg: #0f1216; --panel: #171b21; --line: #2a323c;
-    --ink: #e8eaed; --dim: #9aa4b2; --accent: #f76707;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --paper: oklch(97% 0.012 95); --paper-2: oklch(94% 0.016 95);
+    --ink: oklch(20% 0.012 250); --dim: oklch(20% 0.012 250 / 0.65);
+    --line: oklch(20% 0.012 250 / 0.16);
+    --pear: oklch(86% 0.18 95); --pear-deep: oklch(72% 0.16 95);
+    --mint: oklch(80% 0.16 150); --coral: oklch(68% 0.24 18);
+    --focus: oklch(55% 0.19 235);
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.55 "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
     padding: 20px; max-width: 440px; margin-inline: auto;
   }
-  h1 { font-size: 22px; margin: 8px 0 4px; }
-  p.sub { color: var(--dim); font-size: 14px; margin: 0 0 20px; }
-  label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin: 14px 0 5px; }
+  h1 { font-size: 24px; margin: 8px 0 4px; letter-spacing: -0.02em; }
+  p.sub { color: var(--dim); font-size: 14px; margin: 0 0 16px; }
+  .setup {
+    background: var(--paper-2); border-radius: 16px; padding: 14px 16px;
+    font-size: 13px; color: var(--ink); margin: 0 0 18px;
+  }
+  .setup strong { display: block; margin-bottom: 6px; }
+  .setup ol { margin: 0; padding-left: 18px; }
+  .setup li { margin-bottom: 4px; }
+  label { display: block; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin: 14px 0 5px; }
   input, textarea {
-    width: 100%; background: var(--panel); border: 1px solid var(--line);
-    color: var(--ink); border-radius: 10px; padding: 11px 12px; font-size: 15px;
+    width: 100%; background: #fff; border: 1.5px solid var(--line);
+    color: var(--ink); border-radius: 12px; padding: 11px 12px; font-size: 15px;
     font-family: inherit;
   }
-  input:focus, textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  input:focus, textarea:focus { outline: 2px solid var(--focus); border-color: transparent; }
   button {
-    font: inherit; font-weight: 700; border: none; border-radius: 12px;
+    font: inherit; font-weight: 700; border: none; border-radius: 999px;
     padding: 14px; width: 100%; cursor: pointer; margin-top: 16px;
   }
-  #start { background: var(--accent); color: #14181d; }
-  #stop { background: #495057; color: #fff; display: none; }
+  #start {
+    background: var(--pear); color: var(--ink);
+    box-shadow: 0 4px 0 0 var(--pear-deep);
+    transition: transform 140ms cubic-bezier(0.2,0.7,0.3,1), box-shadow 140ms cubic-bezier(0.2,0.7,0.3,1);
+  }
+  #start:active { transform: translateY(3px); box-shadow: 0 1px 0 0 var(--pear-deep); }
+  #stop { background: var(--ink); color: var(--paper); display: none; }
   .lap-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
-  .lap-row button { width: 56px; margin: 0; padding: 10px; font-size: 20px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+  .lap-row button { width: 56px; margin: 0; padding: 10px; font-size: 20px; background: #fff; color: var(--ink); border: 1.5px solid var(--line); border-radius: 14px; }
   .lap-row .lap-val { font-family: var(--mono); font-size: 26px; font-weight: 700; min-width: 2ch; text-align: center; }
   #status {
-    margin-top: 20px; padding: 14px; background: var(--panel);
-    border: 1px solid var(--line); border-radius: 12px;
+    margin-top: 20px; padding: 14px; background: #fff;
+    border: 1.5px solid var(--line); border-radius: 16px;
     font-family: var(--mono); font-size: 13px; white-space: pre-line; color: var(--dim);
     min-height: 84px;
   }
-  #status.live { border-color: #2f9e44; color: var(--ink); }
-  .warn { color: #ffa94d; font-size: 13px; margin-top: 14px; }
+  #status.live { border-color: var(--mint); color: var(--ink); }
+  .warn { color: var(--coral); font-size: 13px; margin-top: 14px; font-weight: 500; }
+  a { color: oklch(48% 0.16 235); }
 </style>
 </head>
 <body>
 <h1>Phone tracker</h1>
 <p class="sub">Start this at the trailhead and keep the tab open. It pushes your
 position to the site about once a minute.</p>
+
+<div class="setup">
+  <strong>First time? Two minutes of setup:</strong>
+  <ol>
+    <li>On any device, create a <a href="https://github.com/settings/personal-access-tokens/new">fine-grained GitHub token</a> —
+        repository access: only <em>everesting</em>; permissions: <em>Contents → Read and write</em>.</li>
+    <li>Paste it below. It stays in this phone's storage, nowhere else.</li>
+    <li>Tap <em>Start tracking</em> and allow location. That's it — the site updates itself.</li>
+  </ol>
+</div>
 
 <label for="token">GitHub token (stored on this phone only)</label>
 <input id="token" type="password" autocomplete="off"

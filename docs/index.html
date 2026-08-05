@@ -4,11 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Everesting on Foot — 9,000 m in Squamish</title>
-<meta name="description" content="One mountain, eight ways up. 11 laps of the Squamish evac trails to climb 9,000 metres in a single push, with live tracking so you can come join a lap.">
+<meta name="description" content="The height of Everest, on foot, in one day. 11 laps of the Squamish evac trails, tracked live. Come walk a lap, leave a note, drop a photo.">
 
 <meta property="og:title" content="Everesting on Foot — 9,000 m in Squamish">
-<meta property="og:description" content="11 laps, 9,000+ metres of climbing in one push. Follow live and come join a lap.">
+<meta property="og:description" content="The height of Everest, on foot, in one day. Follow live and come walk a lap.">
 <meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -16,76 +20,113 @@
 </head>
 <body>
 
-<header class="hero">
-  <div class="wrap">
-    <p class="kicker">Everesting · Squamish, British Columbia</p>
-    <h1 id="challenge-name">Everesting on Foot</h1>
-    <p class="sub" id="challenge-sub"></p>
-    <dl class="totals" id="totals"></dl>
+<nav class="nav" aria-label="Main">
+  <a class="wordmark" href="#">
+    <span class="peak" aria-hidden="true"><span class="slope"></span><span class="flag"></span></span>
+    Everesting on Foot
+  </a>
+  <div class="nav-links">
+    <a href="tracker.html">Phone tracker</a>
+    <a href="https://github.com/pkudzia/everesting">GitHub</a>
   </div>
+</nav>
+
+<header class="section hero">
+  <div class="figure-wrap">
+    <div class="figure" id="hero-figure" data-target="9000">0<span class="unit">m</span></div>
+  </div>
+  <div class="hero-words">
+    <h1>The height of Everest. On foot. In one day.</h1>
+    <p class="sub" id="challenge-sub">Eleven laps up the Squamish evac trails, eight
+    different ways, until the watch says 9,000 metres of climbing.</p>
+    <div class="hero-ctas">
+      <a class="btn" id="cta-live" href="#live">Follow me live</a>
+      <a class="btn btn--outline" href="#map">See the trails</a>
+    </div>
+  </div>
+  <p class="hero-aside">Yes, this is a terrible idea. That's why you should come watch.</p>
+  <dl class="stat-strip" id="totals" style="grid-column: 1 / -1;"></dl>
 </header>
 
-<section class="wrap live" id="live">
-  <div class="live-head">
-    <span class="live-dot" id="live-dot" aria-hidden="true"></span>
-    <h2 id="live-title">Live tracker</h2>
-    <span class="live-when" id="live-when"></span>
+<section class="section--band band--pear" id="live">
+  <div class="band-inner section live">
+    <div class="live-head">
+      <span class="live-dot" id="live-dot" aria-hidden="true"></span>
+      <h2>Where's Pawel?</h2>
+      <span class="live-when" id="live-when"></span>
+    </div>
+    <p class="live-status" id="live-status">Checking for a live signal…</p>
+    <div class="progress" id="progress" hidden>
+      <div class="progress-bar" id="progress-bar"></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+    <p class="live-hint">On challenge day this shows my position on the map below,
+    fresh from my phone about once a minute. Come up and walk a lap — any lap,
+    any pace. The trailhead is by the Sea to Sky Gondola base.</p>
   </div>
-  <p class="live-status" id="live-status">Checking for a live signal…</p>
-  <div class="progress" id="progress" hidden>
-    <div class="progress-bar" id="progress-bar"></div>
-    <div class="progress-label" id="progress-label"></div>
-  </div>
-  <p class="live-hint">During the attempt this shows my position on the map below,
-  updated about once a minute from my phone. Come up and walk a lap — any lap.</p>
 </section>
 
-<section class="map-section">
+<section class="section--band band--cyan">
+  <div class="band-inner section comments">
+    <h2>Leave a note, drop a photo</h2>
+    <p class="note">Cheer, heckle, place bets on which lap breaks me. Drag a photo
+    from the trail straight into the box and it uploads. Sign in with GitHub to post.</p>
+    <div class="giscus"></div>
+    <script src="https://giscus.app/client.js"
+            data-repo="pkudzia/everesting"
+            data-repo-id="R_kgDOTu-NYg"
+            data-category="Announcements"
+            data-category-id="DIC_kwDOTu-NYs4DCvY-"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="top"
+            data-theme="light"
+            data-lang="en"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </div>
+</section>
+
+<section class="map-section" id="map-section">
   <div id="map" aria-label="Map of all eight uphill variations"></div>
-  <div class="wrap map-legend" id="legend"></div>
+  <div class="map-legend" id="legend"></div>
 </section>
 
-<section class="wrap plan-section" id="plan-section">
-  <h2>The plan: 11 laps to 9,000 m</h2>
+<section class="section plan-section" id="plan-section">
+  <h2>The plan: 11 laps to <span class="hl" style="--hl: oklch(68% 0.24 18 / 0.35)">9,000 m</span></h2>
   <p class="note" id="plan-note"></p>
   <div class="plan-scroll">
     <table class="plan" id="plan-table">
       <thead>
-        <tr><th>Lap</th><th>Variation</th><th>Distance</th><th>Gain</th><th>Total climbed</th></tr>
+        <tr><th>Lap</th><th>Trail</th><th>Distance</th><th>Gain</th><th>Total climbed</th></tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
+  <p class="summit-note">The long, gentle trails go first while the legs are fresh.
+  The last four laps are the shortest, steepest line on the hill, because by then
+  every flat metre is an insult.</p>
 </section>
 
-<main class="wrap" id="variations"></main>
-
-<section class="wrap comments">
-  <h2>Leave a note, drop a photo</h2>
-  <p class="note">Cheer, heckle, or post a photo from the trail — drag an image
-  into the comment box and it uploads. Sign in with GitHub to post.</p>
-  <div class="giscus"></div>
-  <script src="https://giscus.app/client.js"
-          data-repo="pkudzia/everesting"
-          data-repo-id="R_kgDOTu-NYg"
-          data-category="Announcements"
-          data-category-id="DIC_kwDOTu-NYs4DCvY-"
-          data-mapping="pathname"
-          data-strict="0"
-          data-reactions-enabled="1"
-          data-emit-metadata="0"
-          data-input-position="top"
-          data-theme="dark"
-          data-lang="en"
-          crossorigin="anonymous"
-          async>
-  </script>
+<section class="section vars-head" id="vars">
+  <h2>Eight ways up the same hill</h2>
+  <p class="note">Every one starts at the valley floor and tops out around 885 m.
+  Grab a GPX and pick your poison.</p>
+  <main id="variations"></main>
 </section>
 
-<footer class="wrap">
-  <p>Routes drawn in Strava. Elevation figures computed from the GPX with a
-  9-point moving average, so they match what a watch reports rather than the
-  inflated numbers a raw sum gives. Map data © OpenStreetMap contributors.</p>
+<footer class="footer">
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marquee-track"></div>
+  </div>
+  <div class="footer-meta">
+    <p>Routes drawn in Strava. Elevation computed from the GPX with a 9-point moving
+    average, so the numbers match a watch instead of flattering me. Map data
+    © OpenStreetMap contributors. <a href="https://github.com/pkudzia/everesting">Source on GitHub</a>.</p>
+  </div>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

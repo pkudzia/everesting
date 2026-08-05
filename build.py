@@ -318,8 +318,8 @@ def main():
     challenge = {
         "name": "Everesting on Foot",
         "subtitle": (
-            "One mountain, eight ways up, 9,000 metres of climbing in a "
-            "single push on the Squamish evac trails."
+            "Eleven laps up the Squamish evac trails, eight different ways, "
+            "until the watch says 9,000 metres of climbing."
         ),
         "target_m": TARGET_M,
         "totals": {
