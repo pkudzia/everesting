@@ -723,3 +723,30 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   font-weight: 600;
   max-width: 44ch;
 }
+
+/* ---------- bottom photo strip ---------- */
+
+.gallery { padding-top: 0; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: var(--space-md);
+  align-items: center;
+}
+.gallery-card {
+  margin: 0;
+  background: var(--color-paper);
+  border-radius: var(--radius-input);
+  box-shadow: 0 12px 30px -16px oklch(20% 0.012 250 / 0.3);
+  padding: 6px;
+  transition: transform 220ms var(--ease-spring);
+  min-width: 0;
+}
+.gallery-card:nth-child(1) { transform: rotate(-1.2deg); }
+.gallery-card:nth-child(2) { transform: rotate(0.8deg); }
+.gallery-card:nth-child(3) { transform: rotate(-0.6deg); }
+.gallery-card:hover { transform: rotate(0) translateY(-3px); }
+.gallery-card img {
+  width: 100%; height: auto; display: block;
+  border-radius: 8px;
+}
