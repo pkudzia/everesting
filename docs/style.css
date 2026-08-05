@@ -702,20 +702,15 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   max-width: 62ch;
 }
 
-.facts h2 { margin: 0 0 var(--space-2xs); font-size: var(--text-xl); }
-.facts .note { margin: 0 0 var(--space-md); color: oklch(20% 0.012 250 / 0.72); max-width: 60ch; }
+.facts { padding-block: var(--space-md) var(--space-lg); }
 .fact-card {
   background: oklch(74% 0.16 305 / 0.12); /* lavender — the occasional accent */
   border-radius: var(--radius-card);
-  padding: var(--space-md);
-  max-width: 640px;
+  padding: var(--space-sm) var(--space-md);
+  max-width: 720px;
 }
-.fact-card p {
-  margin: 0 0 var(--space-sm);
-  font-size: var(--text-md);
-  font-weight: 500;
-  line-height: 1.5;
-}
+.fact-card .mono-label { margin: 0 0 6px; display: block; }
+.fact-card p { margin: 0 0 var(--space-xs); font-size: var(--text-base); font-weight: 500; line-height: 1.5; }
 
 .objective {
   margin: 0 0 var(--space-md);
