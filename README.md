@@ -47,7 +47,19 @@ specs/      design doc
 
 ## Live tracking
 
-`docs/tracker.html` is the phone side. It watches GPS in the browser and
+Two ways to feed the tracker; both write the same `location.json` on the
+`live` branch, so the site doesn't care which is used.
+
+**Screen-off (recommended): Overland + /api/ping.** The Overland iOS app
+records GPS in the background and POSTs batches to
+`https://everesting-wall.vercel.app/api/ping?key=<PING_KEY>`. The endpoint
+(`wall/api/ping.js`) accumulates ascent (3 m threshold), climbing-only time
+(gaps capped at 2 min, so gondola rides don't count), breadcrumbs, and infers
+the lap number from altitude (top out above 750 m, return below 150 m = next
+lap). Requires two Vercel env vars on `everesting-wall`: `PING_KEY` (set) and
+`GITHUB_TOKEN` (a fine-grained PAT, Contents read/write on this repo only).
+
+**Screen-on (backup): the web tracker.** `docs/tracker.html` is the phone side. It watches GPS in the browser and
 commits `location.json` to the **`live` branch** (never `main`, so Pages never
 rebuilds) via the GitHub contents API, about once a minute. The main page
 polls the contents API for that file every 75 s (uncached and fresh; the
