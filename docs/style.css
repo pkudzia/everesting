@@ -619,3 +619,17 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 }
 .footer-simple p { margin: 0 0 4px; }
 .footer-name { font-weight: 700; color: var(--color-ink); font-size: var(--text-base); }
+
+/* ---------- hero mountain skyline (hand-built SVG, theme tints) ---------- */
+
+.hero { position: relative; overflow: clip; padding-bottom: calc(var(--space-3xl) + 90px); }
+.hero > :not(.hero-ridge) { position: relative; z-index: 1; }
+.hero-ridge {
+  position: absolute; left: 0; right: 0; bottom: -1px;
+  width: 100%; height: clamp(110px, 18vw, 220px);
+  display: block; z-index: 0; pointer-events: none;
+}
+.ridge-far { fill: color-mix(in oklch, var(--color-paper-3) 80%, var(--color-accent-2)); opacity: 0.55; }
+.ridge-summit { fill: color-mix(in oklch, var(--color-paper-3) 55%, var(--color-ink)); opacity: 0.5; }
+.ridge-snow { fill: var(--color-paper); }
+.ridge-near { fill: color-mix(in oklch, var(--color-paper-2) 78%, var(--color-accent)); }

@@ -137,11 +137,11 @@ VARIATIONS = [
 # bank ~8,628 m; the rest of the 9,000 gets picked up along the way.
 LAP_ORDER = [6, 5, 3, 7, 2, 4, 8, 1, 1, 1]
 
-FIRST_LAP = "7:45 a.m."
+FIRST_LAP = "7:30 a.m."
 
-# Lap 1 leaves at 7:45 aiming to catch the 9:00 gondola down, so the working
+# Lap 1 leaves at 7:30 aiming to catch the ~8:45 gondola down, so the working
 # estimate is 75 minutes per lap including the ride back to the bottom.
-FIRST_LAP_MINUTES = 7 * 60 + 45
+FIRST_LAP_MINUTES = 7 * 60 + 30
 LAP_MINUTES = 75
 
 
@@ -338,7 +338,7 @@ def main():
         "subtitle": (
             "Ten laps up the Squamish evac trails, eight different ways, "
             "until the watch says 9,000 metres of climbing. First lap "
-            "leaves at 7:45 a.m."
+            "leaves at 7:30 a.m."
         ),
         "first_lap": FIRST_LAP,
         "target_m": TARGET_M,
