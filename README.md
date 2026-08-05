@@ -4,13 +4,12 @@ A shareable web page for a single-push everesting attempt on the Squamish evac
 trails: 9,000 m of climbing over 11 laps, eight uphill variations, live
 position from my phone, and a comment wall for photos and heckling.
 
-**Target 9,000 m · 11 laps · 9,485 m planned · 36.6 km of climbing**
+**Target 9,000 m · 10 laps · 8,628 m from laps · 33.8 km of climbing · first lap 7:45 a.m.**
 
 ## The lap plan
 
 Every variation climbs the same hill, from the valley floor at ~42 m to the
-top at ~885 m (Variation 6 continues to 940 m). Ascent only counts; how you
-get down (gondola or feet) is between you and your quads.
+top at ~885 m (Variation 6 continues to 940 m). Ascent only counts.
 
 | Lap | Variation | Distance | Gain | Running total |
 |---|---|---|---|---|
@@ -23,17 +22,18 @@ get down (gondola or feet) is between you and your quads.
 | 7 | V8 | 2.95 km | +858 m | 6,057 m |
 | 8 | V1 | 2.78 km | +857 m | 6,914 m |
 | 9 | V1 | 2.78 km | +857 m | 7,771 m |
-| 10 | V1 | 2.78 km | +857 m | 8,628 m |
-| 11 | V1 | 2.78 km | +857 m | **9,485 m** |
+| 10 | V1 | 2.78 km | +857 m | **8,628 m** |
 
-The ordering is deliberate: the two long, gentler variations (V6, V5) go first
-while fresh, the mid-length lines fill the middle, and the last four laps are
-the shortest trail on the hill because by then every horizontal metre is paid
-for twice. 9,000 m falls partway up lap 11; finishing the lap banks a 485 m
-buffer in case the watch reads lower than the map.
+The laps bank 8,628 m; the remaining ~372 m of the 9,000 gets picked up as
+extra vertical between laps. The site's progress bar runs off the phone
+tracker's cumulative ascent, so it counts everything.
 
-Ten laps of any mix except heavy V6 repeats lands short of 9,000 m
-(10 × ~857 m ≈ 8,570 m), which is why the plan is 11.
+## Lap sign-ups
+
+Each lap row on the site has a Join button that opens a prefilled GitHub
+issue ("Lap N — I'm in!"). The page reads the public issues API and lists
+every signed-up username under its lap. Closing an issue removes the
+sign-up. No backend, no database.
 
 ## Layout
 
