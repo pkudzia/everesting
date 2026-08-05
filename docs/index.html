@@ -16,7 +16,7 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -47,13 +47,23 @@
   </div>
 </header>
 
+<section class="section facts" id="facts">
+  <h2>From the biomechanics department</h2>
+  <p class="note">I study human movement for a living, which means I know exactly
+  how bad an idea this is. A rotating fact while you wait:</p>
+  <div class="fact-card">
+    <p id="fact-text"></p>
+    <button class="btn btn--outline" id="fact-next" type="button">Another one</button>
+  </div>
+</section>
+
 <section class="section--band band--pear" id="live">
   <div class="band-inner section live">
     <div class="live-grid">
       <div class="live-main">
         <div class="live-head">
           <span class="live-dot" id="live-dot" aria-hidden="true"></span>
-          <h2>Where's Pawel?</h2>
+          <h2>Track Pawel</h2>
           <span class="live-when" id="live-when"></span>
         </div>
         <p class="live-status" id="live-status">Checking for a live signal…</p>
@@ -75,7 +85,7 @@
 
 <section class="section--band band--cyan">
   <div class="band-inner section comments">
-    <h2>Leave a note, drop a photo</h2>
+    <h2>Leave an encouraging comment</h2>
     <p class="note">Cheer, heckle, place bets on which lap breaks me. No account,
     no sign-in — type a name (or don't) and post.</p>
     <form class="wall-form" id="wall-form">
@@ -115,15 +125,6 @@
   </div>
 </section>
 
-<section class="section facts" id="facts">
-  <h2>From the biomechanics department</h2>
-  <p class="note">I study human movement for a living, which means I know exactly
-  how bad an idea this is. A rotating fact while you wait:</p>
-  <div class="fact-card">
-    <p id="fact-text"></p>
-    <button class="btn btn--outline" id="fact-next" type="button">Another one</button>
-  </div>
-</section>
 
 <section class="map-section" id="map-section">
   <div id="map" aria-label="Map of the uphill trail variations"></div>
@@ -137,6 +138,6 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

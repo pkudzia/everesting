@@ -642,6 +642,12 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   background-repeat: no-repeat;
   overflow: clip;
 }
+.hero-band::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: oklch(97% 0.012 95 / 0.45); /* paper veil — keeps the art soft */
+  pointer-events: none;
+}
 .hero-band::after {
   content: "";
   position: absolute; left: 0; right: 0; bottom: 0; height: 70px;
@@ -668,7 +674,7 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   padding: 6px;
   transform: rotate(1.4deg);
   transition: transform 220ms var(--ease-spring);
-  max-width: 200px;
+  max-width: 320px;
   justify-self: end;
 }
 .live-photo:hover { transform: rotate(0); }
@@ -684,7 +690,7 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 }
 @media (max-width: 700px) {
   .live-grid { grid-template-columns: minmax(0, 1fr); }
-  .live-photo { justify-self: start; max-width: 180px; }
+  .live-photo { justify-self: start; max-width: 260px; }
 }
 
 /* ---------- calories + biomechanics facts ---------- */
