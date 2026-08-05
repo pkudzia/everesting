@@ -633,3 +633,38 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 .ridge-summit { fill: color-mix(in oklch, var(--color-paper-3) 55%, var(--color-ink)); opacity: 0.5; }
 .ridge-snow { fill: var(--color-paper); }
 .ridge-near { fill: color-mix(in oklch, var(--color-paper-2) 78%, var(--color-accent)); }
+
+/* ---------- Pawel photo in the live band ---------- */
+
+.live-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-items: center;
+}
+.live-photo {
+  margin: 0;
+  background: var(--color-paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 14px 36px -16px oklch(20% 0.012 250 / 0.28);
+  padding: var(--space-xs);
+  transform: rotate(1.4deg);
+  transition: transform 220ms var(--ease-spring);
+  max-width: 420px;
+  justify-self: end;
+}
+.live-photo:hover { transform: rotate(0); }
+.live-photo img {
+  width: 100%; height: auto; display: block;
+  border-radius: var(--radius-input);
+}
+.live-photo figcaption {
+  padding: 8px 6px 2px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  color: oklch(20% 0.012 250 / 0.62);
+}
+@media (max-width: 700px) {
+  .live-grid { grid-template-columns: minmax(0, 1fr); }
+  .live-photo { justify-self: start; max-width: 340px; }
+}

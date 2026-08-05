@@ -50,18 +50,26 @@
 
 <section class="section--band band--pear" id="live">
   <div class="band-inner section live">
-    <div class="live-head">
-      <span class="live-dot" id="live-dot" aria-hidden="true"></span>
-      <h2>Where's Pawel?</h2>
-      <span class="live-when" id="live-when"></span>
+    <div class="live-grid">
+      <div class="live-main">
+        <div class="live-head">
+          <span class="live-dot" id="live-dot" aria-hidden="true"></span>
+          <h2>Where's Pawel?</h2>
+          <span class="live-when" id="live-when"></span>
+        </div>
+        <p class="live-status" id="live-status">Checking for a live signal…</p>
+        <div class="progress" id="progress" hidden>
+          <div class="progress-bar" id="progress-bar"></div>
+          <div class="progress-label" id="progress-label"></div>
+        </div>
+        <p class="live-hint">On the day this shows my position on the map below, fresh
+        from my phone about once a minute. The trailhead is by the Sea to Sky Gondola base.</p>
+      </div>
+      <figure class="live-photo">
+        <img src="pawel.jpg" alt="Pawel in a hooded robe in front of snow-capped mountains" width="1200" height="900" loading="lazy">
+        <figcaption>This is who you're looking for. Summit attire may vary.</figcaption>
+      </figure>
     </div>
-    <p class="live-status" id="live-status">Checking for a live signal…</p>
-    <div class="progress" id="progress" hidden>
-      <div class="progress-bar" id="progress-bar"></div>
-      <div class="progress-label" id="progress-label"></div>
-    </div>
-    <p class="live-hint">On the day this shows my position on the map below, fresh
-    from my phone about once a minute. The trailhead is by the Sea to Sky Gondola base.</p>
   </div>
 </section>
 
