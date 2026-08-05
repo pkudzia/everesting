@@ -378,16 +378,16 @@ function renderSchedule(c) {
     vd.append(chip);
     tr.append(vd);
 
-    const names = el('td', 'crew-names');
-    names.dataset.lap = String(row.lap);
-    tr.append(names);
-
     const joinTd = el('td');
     const join = el('button', 'join-link', 'Join');
     join.type = 'button';
     join.addEventListener('click', () => joinLap(row.lap, join));
     joinTd.append(join);
     tr.append(joinTd);
+
+    const names = el('td', 'crew-names');
+    names.dataset.lap = String(row.lap);
+    tr.append(names);
 
     tbody.append(tr);
   }

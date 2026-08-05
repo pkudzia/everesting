@@ -760,3 +760,37 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   font-weight: 600;
   max-width: 62ch;
 }
+
+/* ---------- mobile optimization pass ---------- */
+
+/* Sticky nav so Track Pawel / Leave a comment are always one tap away. */
+.nav-wrap {
+  position: sticky; top: 0; z-index: 1000;
+  background: oklch(97% 0.012 95 / 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid oklch(20% 0.012 250 / 0.08);
+}
+
+@media (max-width: 700px) {
+  /* Portrait phones: fill the hero with the artwork instead of leaving a
+     flat band below the image's bottom edge. */
+  .hero-band { background-size: cover; background-position: center; }
+
+  /* Bigger tap targets */
+  .join-link { padding: 9px 16px; font-size: 12px; }
+  .legend-btn { padding: 9px 14px; }
+
+  /* Denser table so more fits before horizontal scroll */
+  .plan th { padding: 10px 10px; }
+  .plan td { padding: 9px 10px; }
+
+  #map { height: min(60vh, 520px); }
+}
+
+@media (max-width: 600px) {
+  /* Collapse the wordmark to the mountain mark so both nav buttons fit. */
+  .wordmark-text { display: none; }
+  .nav { gap: var(--space-sm); }
+  .nav-links { gap: var(--space-2xs); }
+}
