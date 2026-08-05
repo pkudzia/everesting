@@ -16,7 +16,7 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -26,7 +26,8 @@
     Everesting on Foot
   </a>
   <div class="nav-links">
-    <a href="tracker.html">Phone tracker</a>
+    <a class="btn btn--sm btn--outline" href="#comments">Leave a comment</a>
+    <a class="btn btn--sm" href="#live">Track Pawel</a>
   </div>
 </nav>
 
@@ -36,6 +37,7 @@
       <div class="figure" id="hero-figure" data-target="9000">0<span class="unit">m</span></div>
     </div>
     <div class="hero-words">
+      <p class="mono-label hero-date">Friday · August 7 · 2026</p>
       <h1>The height of Everest. On foot. In one day.</h1>
       <p class="sub" id="challenge-sub">Ten laps up the Squamish evac trails until the
       watch says 9,000 metres of climbing. First lap leaves at 7:30 a.m.</p>
@@ -83,7 +85,7 @@
   </div>
 </section>
 
-<section class="section--band band--cyan">
+<section class="section--band band--cyan" id="comments">
   <div class="band-inner section comments">
     <h2>Leave an encouraging comment</h2>
     <p class="note">Cheer, heckle, place bets on which lap breaks me. No account,
@@ -146,6 +148,6 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="app.js?v=9"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>

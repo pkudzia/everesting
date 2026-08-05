@@ -638,7 +638,7 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   background-color: var(--color-sky);
   background-image: url("everest-bg.jpg");
   background-size: 100% auto;
-  background-position: center bottom;
+  background-position: center top;
   background-repeat: no-repeat;
   overflow: clip;
 }
@@ -654,8 +654,8 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   background: linear-gradient(to bottom, transparent, var(--color-paper));
   pointer-events: none;
 }
-/* Text occupies the sky; the peak needs ~55% of the image height clear. */
-.hero { padding-bottom: clamp(220px, 44vw, 620px); }
+/* Content overlays the art; keep just enough peak visible below the text. */
+.hero { padding-bottom: clamp(90px, 14vw, 200px); }
 .hero > * { position: relative; z-index: 1; }
 
 /* ---------- Pawel photo in the live band ---------- */
@@ -749,4 +749,12 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 .gallery-card img {
   width: 100%; height: auto; display: block;
   border-radius: 8px;
+}
+
+/* ---------- nav buttons + hero date ---------- */
+
+.btn--sm { padding: 0.45rem 1rem; font-size: var(--text-sm); }
+.hero-date { margin: 0 0 var(--space-2xs); font-weight: 700; opacity: 0.8; }
+@media (max-width: 560px) {
+  .btn--sm { padding: 0.4rem 0.8rem; font-size: 13px; }
 }
