@@ -12,9 +12,15 @@ const el = (tag, cls, text) => {
 const num = (n) => n.toLocaleString('en-CA');
 
 /* The tracker page commits location.json to the `live` branch, which GitHub
-   Pages never builds, so updates land without triggering site rebuilds. */
-const LIVE_URL = 'https://raw.githubusercontent.com/pkudzia/everesting/live/location.json';
-const LIVE_POLL_MS = 60_000;
+   Pages never builds, so updates land without triggering site rebuilds.
+
+   Freshness: the API endpoint is never CDN-cached, so it is the primary
+   source (60 unauthenticated requests/hour per viewer IP; polling at 75 s
+   stays under that). raw.githubusercontent is the fallback for rate-limited
+   viewers — Fastly ignores query strings there, so it can lag up to 5 min. */
+const LIVE_API_URL = 'https://api.github.com/repos/pkudzia/everesting/contents/location.json?ref=live';
+const LIVE_RAW_URL = 'https://raw.githubusercontent.com/pkudzia/everesting/live/location.json';
+const LIVE_POLL_MS = 75_000;
 const LIVE_FRESH_MS = 10 * 60_000; // older than this counts as "not live"
 
 let map;
@@ -75,13 +81,21 @@ function renderTotals(c) {
 async function pollLive() {
   let loc;
   try {
-    // Cache-buster query defeats the raw.githubusercontent CDN cache.
-    const res = await fetch(`${LIVE_URL}?t=${Date.now()}`, { cache: 'no-store' });
+    const res = await fetch(LIVE_API_URL, {
+      cache: 'no-store',
+      headers: { Accept: 'application/vnd.github.raw+json' },
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     loc = await res.json();
   } catch {
-    setLive(null);
-    return;
+    try {
+      const res = await fetch(LIVE_RAW_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      loc = await res.json();
+    } catch {
+      setLive(null);
+      return;
+    }
   }
   setLive(loc);
 }

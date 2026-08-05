@@ -48,9 +48,12 @@ Same shape as boys-gravel-trip:
 - The `live` branch exists so commits never touch the Pages source branch,
   which would queue a site rebuild per push and hit the ~10 builds/hour soft
   limit within minutes.
-- Viewer side (`app.js`): polls
-  `raw.githubusercontent.com/pkudzia/everesting/live/location.json` with a
-  cache-busting query every 60 s. A payload older than 10 minutes or with
+- Viewer side (`app.js`): polls the GitHub contents API for
+  `location.json?ref=live` every 75 s (uncached; 60 unauthenticated
+  requests/hour per viewer IP), falling back to `raw.githubusercontent.com`
+  when rate-limited. Cache-busting query params do NOT work on raw — Fastly
+  ignores the query string there, verified during build — so the fallback can
+  lag up to 5 minutes. A payload older than 10 minutes or with
   `active: false` renders as "not live". Fresh payloads show a pulsing map
   marker, lap/altitude/message line, and a progress bar toward 9,000 m.
 - Known limitation: mobile browsers stop GPS when the tab is backgrounded or

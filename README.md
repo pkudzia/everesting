@@ -49,8 +49,11 @@ specs/      design doc
 `docs/tracker.html` is the phone side. It watches GPS in the browser and
 commits `location.json` to the **`live` branch** (never `main`, so Pages never
 rebuilds) via the GitHub contents API, about once a minute. The main page
-polls that file through `raw.githubusercontent.com` with a cache-buster and
-shows a pulsing marker, current lap, altitude, and a progress bar to 9,000 m.
+polls the contents API for that file every 75 s (uncached and fresh; the
+unauthenticated limit is 60 requests/hour per viewer IP) and falls back to
+`raw.githubusercontent.com` for rate-limited viewers, which Fastly caches for
+up to 5 minutes regardless of query string. Fresh data shows a pulsing
+marker, current lap, altitude, and a progress bar to 9,000 m.
 
 One-time setup, before challenge day:
 
