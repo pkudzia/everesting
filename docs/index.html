@@ -16,7 +16,7 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -30,22 +30,21 @@
   </div>
 </nav>
 
-<header class="section hero">
-  <div class="figure-wrap">
-    <div class="figure" id="hero-figure" data-target="9000">0<span class="unit">m</span></div>
+<header class="hero-band">
+  <div class="band-inner section hero">
+    <div class="figure-wrap">
+      <div class="figure" id="hero-figure" data-target="9000">0<span class="unit">m</span></div>
+    </div>
+    <div class="hero-words">
+      <h1>The height of Everest. On foot. In one day.</h1>
+      <p class="sub" id="challenge-sub">Ten laps up the Squamish evac trails until the
+      watch says 9,000 metres of climbing. First lap leaves at 7:30 a.m.</p>
+      <p class="objective">The objective: connect with new people, accomplish the
+      challenge, dig deep, and <span class="hl" style="--hl: oklch(68% 0.24 18 / 0.35)">fill my heart</span>.</p>
+    </div>
+    <p class="hero-aside">Come watch. Jump in for a lap up, join a lap down,
+    bring snacks. I want to connect.</p>
   </div>
-  <div class="hero-words">
-    <h1>The height of Everest. On foot. In one day.</h1>
-    <p class="sub" id="challenge-sub">Ten laps up the Squamish evac trails until the
-    watch says 9,000 metres of climbing. First lap leaves at 7:30 a.m.</p>
-  </div>
-  <p class="hero-aside">Yes, this is a terrible idea. That's why you should come watch.</p>
-  <svg class="hero-ridge" viewBox="0 0 1440 240" preserveAspectRatio="none" aria-hidden="true">
-    <polygon class="ridge-far" points="0,190 120,150 240,175 340,120 470,170 600,105 700,150 980,160 1100,110 1250,165 1360,130 1440,160 1440,240 0,240"/>
-    <polygon class="ridge-summit" points="640,240 860,52 1080,240"/>
-    <polygon class="ridge-snow" points="812,93 860,52 908,93 888,88 872,100 852,86 834,98"/>
-    <polygon class="ridge-near" points="0,240 0,200 180,170 330,205 520,160 720,210 900,175 1080,215 1260,185 1440,205 1440,240"/>
-  </svg>
 </header>
 
 <section class="section--band band--pear" id="live">
@@ -62,6 +61,7 @@
           <div class="progress-bar" id="progress-bar"></div>
           <div class="progress-label" id="progress-label"></div>
         </div>
+        <p class="live-cal" id="live-cal" hidden></p>
         <p class="live-hint">On the day this shows my position on the map below, fresh
         from my phone about once a minute. The trailhead is by the Sea to Sky Gondola base.</p>
       </div>
@@ -115,6 +115,16 @@
   </div>
 </section>
 
+<section class="section facts" id="facts">
+  <h2>From the biomechanics department</h2>
+  <p class="note">I study human movement for a living, which means I know exactly
+  how bad an idea this is. A rotating fact while you wait:</p>
+  <div class="fact-card">
+    <p id="fact-text"></p>
+    <button class="btn btn--outline" id="fact-next" type="button">Another one</button>
+  </div>
+</section>
+
 <section class="map-section" id="map-section">
   <div id="map" aria-label="Map of the uphill trail variations"></div>
   <div class="map-legend" id="legend"></div>
@@ -127,6 +137,6 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="app.js"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

@@ -48,9 +48,91 @@ async function init() {
   renderLegend(challenge);
   renderSchedule(challenge);
   wireWall();
+  wireFacts();
 
   pollLive();
   setInterval(pollLive, LIVE_POLL_MS);
+  pollWeather();
+  setInterval(pollWeather, WEATHER_POLL_MS);
+}
+
+/* ---------------- calories, calibrated to the weather ----------------
+   Vertical metabolic cost of steep uphill walking is ~45 J per kg per vertical
+   metre (Minetti et al. 2002, J Appl Physiol). At 86 kg (190 lb) that is
+   0.93 kcal per metre climbed. Weather nudges the bill: thermoregulation in
+   heat or cold, wet trail, wind. Descent is by gondola, so it's free. */
+
+const MASS_KG = 86.2; // 190 lb
+const KCAL_PER_VM = (MASS_KG * 45) / 4184; // ≈ 0.93
+const KCAL_PER_PIEROGI = 80;
+const WEATHER_POLL_MS = 15 * 60_000;
+const WEATHER_URL =
+  'https://api.open-meteo.com/v1/forecast?latitude=49.675&longitude=-123.156' +
+  '&current=temperature_2m,precipitation,wind_speed_10m';
+
+let weather = null; // { tempC, precip, windKmh }
+let lastGained = null;
+
+async function pollWeather() {
+  try {
+    const res = await fetch(WEATHER_URL);
+    if (!res.ok) return;
+    const j = await res.json();
+    weather = {
+      tempC: j.current.temperature_2m,
+      precip: j.current.precipitation,
+      windKmh: j.current.wind_speed_10m,
+    };
+    if (lastGained != null) renderCalories(lastGained);
+  } catch { /* keep the last reading */ }
+}
+
+/** Multiplier ≥ 1 plus a short human-readable reason. */
+function weatherFactor() {
+  if (!weather) return { f: 1, why: '' };
+  let f = 1;
+  const why = [];
+  if (weather.tempC >= 30) { f += 0.10; why.push(`+10% for ${Math.round(weather.tempC)}°C heat`); }
+  else if (weather.tempC >= 25) { f += 0.05; why.push(`+5% for ${Math.round(weather.tempC)}°C heat`); }
+  else if (weather.tempC <= 5) { f += 0.05; why.push(`+5% for ${Math.round(weather.tempC)}°C cold`); }
+  if (weather.precip > 0) { f += 0.03; why.push('+3% for a wet trail'); }
+  if (weather.windKmh > 25) { f += 0.02; why.push('+2% for wind'); }
+  if (!why.length) why.push(`no surcharge at ${Math.round(weather.tempC)}°C`);
+  return { f, why: why.join(', ') };
+}
+
+function renderCalories(gained) {
+  lastGained = gained;
+  const box = $('#live-cal');
+  const { f, why } = weatherFactor();
+  const kcal = Math.round(gained * KCAL_PER_VM * f);
+  const pierogi = Math.round(kcal / KCAL_PER_PIEROGI);
+  box.hidden = false;
+  box.textContent =
+    `≈ ${num(kcal)} kcal of climbing so far — about ${num(pierogi)} pierogi. ` +
+    `(45 J per kg per vertical metre at 86 kg${weather ? `, ${why}` : ''}. Gondola descents are free.)`;
+}
+
+/* ---------------- biomechanics facts ---------------- */
+
+const FACTS = [
+  'Muscles turn only about a quarter of their fuel into climbing. The other 75% becomes heat, which is why everesting is also a cooling problem.',
+  'Going down damages muscle more than going up. Lowering the body loads muscles while they lengthen (eccentric contractions), which tears more fibres than climbing does. Taking the gondola down is not lazy — it is peer-reviewed.',
+  'Above roughly a 30% grade it costs less energy to walk than to run, and everyone converges to nearly the same speed. On the 76% headwall, sprinting is not on the menu for anyone.',
+  'As calf muscles fatigue, the body quietly shifts work uphill to the hips — a distal-to-proximal redistribution. If my stride looks weirder every lap, that is the nervous system renegotiating the contract.',
+  'The Achilles tendon returns roughly a third of the elastic energy stored each stride, for free, like a spring. Tendons do not fatigue the way muscles do — they are the most reliable teammate on this hill.',
+  'A kilogram on your feet costs several times more energy than a kilogram on your back, which is why light shoes matter more than a light pack.',
+  'The body stores only ~2,000 kcal of ready carbohydrate, and this day costs over 8,000. The difference has to be eaten while climbing — roughly a snack every 20 minutes, all day.',
+  'The energetically optimal grade for gaining elevation is about 25%. These trails average 20–30%, which means they are, by accident, near-perfect climbing machines.',
+  'Fatigue is not just in the muscles: the brain reduces its drive to them to protect the system, which is why encouragement at the trailhead measurably helps. This is your formal invitation.',
+];
+
+function wireFacts() {
+  const text = $('#fact-text');
+  let i = Math.floor(Math.random() * FACTS.length);
+  const show = () => { text.textContent = FACTS[i % FACTS.length]; };
+  $('#fact-next').addEventListener('click', () => { i += 1; show(); });
+  show();
 }
 
 /* ---------------- hero figure ---------------- */
@@ -140,6 +222,7 @@ function setLive(loc) {
     $('#progress-label').textContent = left
       ? `${num(gained)} m climbed · ${num(left)} m to go`
       : `${num(gained)} m — done. DONE!`;
+    renderCalories(gained);
   }
 
   if (!liveMarker) {

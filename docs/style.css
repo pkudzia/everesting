@@ -14,6 +14,7 @@
   --color-accent-3: oklch(68% 0.24 18);      /* coral — the one big moment */
   --color-mint: oklch(80% 0.16 150);         /* success only */
   --color-focus: oklch(55% 0.19 235);
+  --color-sky: #e1ded9;              /* the illustration's sky, sampled */
 
   --font-display: "Plus Jakarta Sans", "Geist", ui-rounded, system-ui, sans-serif;
   --font-body: "Plus Jakarta Sans", "Geist", system-ui, sans-serif;
@@ -228,10 +229,15 @@ a { color: oklch(48% 0.16 235); }
 
 .hero-aside {
   grid-column: 1 / -1;
+  justify-self: start;
   margin: var(--space-sm) 0 0;
   font-family: var(--font-label);
   font-size: 12px;
-  color: oklch(20% 0.012 250 / 0.6);
+  color: oklch(20% 0.012 250 / 0.85);
+  background: oklch(97% 0.012 95 / 0.8);
+  backdrop-filter: blur(3px);
+  padding: 8px 14px;
+  border-radius: var(--radius-input);
   transform: rotate(-1.2deg);
   transform-origin: left center;
   max-width: 46ch;
@@ -620,37 +626,49 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 .footer-simple p { margin: 0 0 4px; }
 .footer-name { font-weight: 700; color: var(--color-ink); font-size: var(--text-base); }
 
-/* ---------- hero mountain skyline (hand-built SVG, theme tints) ---------- */
+/* ---------- hero: the Everest illustration ---------- */
 
-.hero { position: relative; overflow: clip; padding-bottom: calc(var(--space-3xl) + 90px); }
-.hero > :not(.hero-ridge) { position: relative; z-index: 1; }
-.hero-ridge {
-  position: absolute; left: 0; right: 0; bottom: -1px;
-  width: 100%; height: clamp(110px, 18vw, 220px);
-  display: block; z-index: 0; pointer-events: none;
+/* Pawel's traced-Everest artwork. Text lives in the flat grey sky at the top;
+   the peak fills the lower half. A gradient overlay fades the snowy foot of
+   the illustration into the page paper so the seam never shows. */
+.hero-band {
+  position: relative;
+  /* --color-sky matches the illustration's own sky, so the painted image and
+     the extended band above it read as one surface. */
+  background-color: var(--color-sky);
+  background-image: url("everest-bg.jpg");
+  background-size: 100% auto;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  overflow: clip;
 }
-.ridge-far { fill: color-mix(in oklch, var(--color-paper-3) 80%, var(--color-accent-2)); opacity: 0.55; }
-.ridge-summit { fill: color-mix(in oklch, var(--color-paper-3) 55%, var(--color-ink)); opacity: 0.5; }
-.ridge-snow { fill: var(--color-paper); }
-.ridge-near { fill: color-mix(in oklch, var(--color-paper-2) 78%, var(--color-accent)); }
+.hero-band::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0; height: 70px;
+  background: linear-gradient(to bottom, transparent, var(--color-paper));
+  pointer-events: none;
+}
+/* Text occupies the sky; the peak needs ~55% of the image height clear. */
+.hero { padding-bottom: clamp(220px, 44vw, 620px); }
+.hero > * { position: relative; z-index: 1; }
 
 /* ---------- Pawel photo in the live band ---------- */
 
 .live-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--space-lg);
   align-items: center;
 }
 .live-photo {
   margin: 0;
   background: var(--color-paper);
-  border-radius: var(--radius-card);
-  box-shadow: 0 14px 36px -16px oklch(20% 0.012 250 / 0.28);
-  padding: var(--space-xs);
+  border-radius: var(--radius-input);
+  box-shadow: 0 10px 26px -14px oklch(20% 0.012 250 / 0.28);
+  padding: 6px;
   transform: rotate(1.4deg);
   transition: transform 220ms var(--ease-spring);
-  max-width: 420px;
+  max-width: 200px;
   justify-self: end;
 }
 .live-photo:hover { transform: rotate(0); }
@@ -666,5 +684,36 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 }
 @media (max-width: 700px) {
   .live-grid { grid-template-columns: minmax(0, 1fr); }
-  .live-photo { justify-self: start; max-width: 340px; }
+  .live-photo { justify-self: start; max-width: 180px; }
+}
+
+/* ---------- calories + biomechanics facts ---------- */
+
+.live-cal {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--text-sm);
+  color: oklch(20% 0.012 250 / 0.75);
+  max-width: 62ch;
+}
+
+.facts h2 { margin: 0 0 var(--space-2xs); font-size: var(--text-xl); }
+.facts .note { margin: 0 0 var(--space-md); color: oklch(20% 0.012 250 / 0.72); max-width: 60ch; }
+.fact-card {
+  background: oklch(74% 0.16 305 / 0.12); /* lavender — the occasional accent */
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  max-width: 640px;
+}
+.fact-card p {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.objective {
+  margin: 0 0 var(--space-md);
+  font-size: var(--text-base);
+  font-weight: 600;
+  max-width: 44ch;
 }
