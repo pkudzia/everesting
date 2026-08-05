@@ -315,7 +315,11 @@ a { color: oklch(48% 0.16 235); }
   background: var(--color-paper-2);
   z-index: 0;
 }
-.leaflet-container { font: inherit; background: #e9e4dc; }
+.leaflet-container { font: inherit; background: oklch(94% 0 0); }
+
+/* Basemap in black and white so the eight route colours carry the map.
+   Tiles are <img> in their own pane; the SVG route overlay is untouched. */
+.leaflet-tile-pane { filter: grayscale(1) contrast(1.06) brightness(1.04); }
 .map-pin { background: none; border: none; }
 .map-pin svg { display: block; filter: drop-shadow(0 1px 2px oklch(20% 0.012 250 / 0.35)); }
 
