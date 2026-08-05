@@ -233,9 +233,11 @@ function setLive(loc) {
   // Connected breadcrumb trail — where Pawel has actually been today.
   if (Array.isArray(loc.trail) && loc.trail.length > 1) {
     if (!liveTrail) {
+      // Ink-dark dotted line so the breadcrumbs read over both the grey
+      // terrain and the coloured route lines.
       liveTrail = L.polyline(loc.trail, {
-        color: '#f76707', weight: 4, opacity: 0.85,
-        dashArray: '1 8', lineCap: 'round', lineJoin: 'round',
+        color: '#22262e', weight: 4, opacity: 0.9,
+        dashArray: '0.1 9', lineCap: 'round', lineJoin: 'round',
       });
     } else {
       liveTrail.setLatLngs(loc.trail);
