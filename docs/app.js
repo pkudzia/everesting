@@ -53,9 +53,123 @@ async function init() {
   renderPlan(challenge);
   challenge.variations.forEach((v) => $('#variations').append(renderVariation(v)));
   wireStarBurst();
+  wireWall();
 
   pollLive();
   setInterval(pollLive, LIVE_POLL_MS);
+}
+
+/* ---------------- cheer wall (anonymous, no sign-in) ----------------
+   A tiny Vercel function + blob storage. Photos are downscaled client-side
+   before upload so trail LTE survives the experience. */
+
+const WALL_API = 'https://everesting-wall.vercel.app/api/wall';
+const WALL_POLL_MS = 60_000;
+
+function wireWall() {
+  const form = $('#wall-form');
+  if (!form) return;
+  const photoInput = $('#wall-photo');
+  const photoLabel = $('#wall-photo-label');
+  const feedback = $('#wall-feedback');
+  let photoData = null;
+
+  photoInput.addEventListener('change', async () => {
+    const file = photoInput.files[0];
+    if (!file) { photoData = null; photoLabel.textContent = 'Add a photo'; return; }
+    photoLabel.textContent = 'Squishing…';
+    try {
+      photoData = await shrinkImage(file);
+      photoLabel.textContent = 'Photo ready ✓';
+    } catch {
+      photoData = null;
+      photoLabel.textContent = 'Add a photo';
+      feedback.textContent = 'Could not read that image — try another one.';
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = $('#wall-message').value.trim();
+    if (!message && !photoData) { feedback.textContent = 'Say something or show something.'; return; }
+    const btn = $('#wall-post');
+    btn.disabled = true;
+    feedback.textContent = 'Posting…';
+    try {
+      const res = await fetch(WALL_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: $('#wall-name').value,
+          message,
+          photo: photoData,
+          website: $('#wall-website').value, // honeypot, stays empty for humans
+        }),
+      });
+      const post = await res.json();
+      if (!res.ok) throw new Error(post.error || `HTTP ${res.status}`);
+      feedback.textContent = '';
+      $('#wall-message').value = '';
+      photoInput.value = '';
+      photoData = null;
+      photoLabel.textContent = 'Add a photo';
+      $('#wall-posts').prepend(wallCard(post));
+    } catch (err) {
+      feedback.textContent = `That didn't post (${err.message}). Try again?`;
+    }
+    btn.disabled = false;
+  });
+
+  loadWall();
+  setInterval(loadWall, WALL_POLL_MS);
+}
+
+/** Downscale to ≤1600px JPEG so posts stay small. Returns a data URL. */
+function shrinkImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad image')); };
+    img.src = url;
+  });
+}
+
+async function loadWall() {
+  let posts;
+  try {
+    const res = await fetch(`${WALL_API}?t=${Date.now()}`);
+    if (!res.ok) return;
+    posts = await res.json();
+  } catch { return; }
+  const box = $('#wall-posts');
+  box.replaceChildren(...posts.map(wallCard));
+}
+
+function wallCard(post) {
+  const card = el('article', 'wall-card');
+  if (post.photo) {
+    const img = el('img', 'wall-img');
+    img.src = post.photo;
+    img.alt = `Photo from ${post.name}`;
+    img.loading = 'lazy';
+    card.append(img);
+  }
+  if (post.message) card.append(el('p', 'wall-msg', post.message));
+  const meta = el('p', 'wall-meta');
+  meta.append(el('strong', null, post.name));
+  const age = Date.now() - Date.parse(post.time);
+  if (Number.isFinite(age)) meta.append(document.createTextNode(` · ${agoText(age)}`));
+  card.append(meta);
+  return card;
 }
 
 /* ---------------- hero figure + celebrations ---------------- */

@@ -549,3 +549,53 @@ a { color: oklch(48% 0.16 235); }
 .join-link:hover { transform: translateY(-1px); box-shadow: 0 3px 0 0 var(--color-accent-deep); }
 .join-link:active { transform: translateY(1px); box-shadow: 0 0 0 0 var(--color-accent-deep); }
 .join-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* ---------- cheer wall ---------- */
+
+.wall-form {
+  background: var(--color-paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 12px 32px -16px oklch(20% 0.012 250 / 0.15);
+  padding: var(--space-md);
+  max-width: 560px;
+}
+.wall-row { display: flex; gap: var(--space-sm); align-items: center; }
+.wall-form input[type="text"], .wall-form textarea {
+  width: 100%; font: inherit; color: var(--color-ink);
+  background: var(--color-paper);
+  border: 1.5px solid oklch(20% 0.012 250 / 0.16);
+  border-radius: var(--radius-input);
+  padding: 10px 12px;
+}
+.wall-form textarea { margin-top: var(--space-sm); resize: vertical; }
+.wall-form input:focus, .wall-form textarea:focus { outline: 2px solid var(--color-focus); border-color: transparent; }
+#wall-website { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.wall-actions { margin-top: var(--space-sm); flex-wrap: wrap; }
+.wall-photo-btn { cursor: pointer; }
+.wall-feedback { margin: var(--space-xs) 0 0; font-size: var(--text-sm); color: var(--color-accent-3); font-weight: 500; min-height: 1.2em; }
+
+.wall-posts {
+  margin-top: var(--space-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-md);
+  align-items: start;
+}
+.wall-card {
+  background: var(--color-paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 12px 32px -16px oklch(20% 0.012 250 / 0.18);
+  padding: var(--space-sm);
+  min-width: 0;
+  transition: transform 220ms var(--ease-spring);
+}
+/* polaroid tilt — alternating, straightens on hover */
+.wall-card:nth-child(3n)   { transform: rotate(-1.1deg); }
+.wall-card:nth-child(3n+1) { transform: rotate(0.9deg); }
+.wall-card:hover { transform: rotate(0) translateY(-3px); }
+.wall-img {
+  width: 100%; max-width: 100%; height: auto; display: block;
+  border-radius: var(--radius-input);
+}
+.wall-msg { margin: var(--space-xs) 0 0; font-size: var(--text-sm); overflow-wrap: anywhere; }
+.wall-meta { margin: var(--space-2xs) 0 0; font-size: 12px; color: oklch(20% 0.012 250 / 0.6); }

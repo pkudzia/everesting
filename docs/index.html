@@ -69,24 +69,24 @@
 <section class="section--band band--cyan">
   <div class="band-inner section comments">
     <h2>Leave a note, drop a photo</h2>
-    <p class="note">Cheer, heckle, place bets on which lap breaks me. Drag a photo
-    from the trail straight into the box and it uploads. Sign in with GitHub to post.</p>
-    <div class="giscus"></div>
-    <script src="https://giscus.app/client.js"
-            data-repo="pkudzia/everesting"
-            data-repo-id="R_kgDOTu-NYg"
-            data-category="Announcements"
-            data-category-id="DIC_kwDOTu-NYs4DCvY-"
-            data-mapping="pathname"
-            data-strict="0"
-            data-reactions-enabled="1"
-            data-emit-metadata="0"
-            data-input-position="top"
-            data-theme="light"
-            data-lang="en"
-            crossorigin="anonymous"
-            async>
-    </script>
+    <p class="note">Cheer, heckle, place bets on which lap breaks me. No account,
+    no sign-in — type a name (or don't) and post.</p>
+    <form class="wall-form" id="wall-form">
+      <div class="wall-row">
+        <input id="wall-name" type="text" maxlength="40" placeholder="Your name (optional)" autocomplete="name">
+        <input id="wall-website" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      </div>
+      <textarea id="wall-message" maxlength="500" rows="2" placeholder="Say something encouraging. Or don't — heckling also accepted."></textarea>
+      <div class="wall-row wall-actions">
+        <label class="btn btn--outline wall-photo-btn">
+          <input id="wall-photo" type="file" accept="image/*" hidden>
+          <span id="wall-photo-label">Add a photo</span>
+        </label>
+        <button class="btn" id="wall-post" type="submit">Post it</button>
+      </div>
+      <p class="wall-feedback" id="wall-feedback" role="status"></p>
+    </form>
+    <div class="wall-posts" id="wall-posts"></div>
   </div>
 </section>
 
