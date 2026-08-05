@@ -753,3 +753,10 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 @media (max-width: 560px) {
   .btn--sm { padding: 0.4rem 0.8rem; font-size: 13px; }
 }
+
+.live-pace {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  max-width: 62ch;
+}

@@ -126,6 +126,12 @@ instead.</p>
   let lap = 1;
   let sha = null; // content sha of location.json on the live branch
   let pushes = 0;
+  // Breadcrumb trail + time-spent-climbing. Climb time only accumulates while
+  // altitude is rising (gaps capped at 2 min), so gondola rides and long rests
+  // don't count toward the pace shown on the site.
+  const trail = [];
+  let climbS = 0;
+  let lastGainAt = null;
 
   const say = (text, live) => {
     status.textContent = text;
@@ -178,12 +184,23 @@ instead.</p>
       if (lastAlt != null) {
         const d = altitude - lastAlt;
         if (Math.abs(d) >= GAIN_THRESHOLD_M) {
-          if (d > 0) gained += d;
+          if (d > 0) {
+            gained += d;
+            const now = Date.now();
+            if (lastGainAt != null) climbS += Math.min(120, (now - lastGainAt) / 1000);
+            lastGainAt = now;
+          }
           lastAlt = altitude;
         }
       } else {
         lastAlt = altitude;
       }
+    }
+    // Breadcrumb every ~25 m of movement, capped so the payload stays small.
+    const last = trail[trail.length - 1];
+    if (!last || crumbDist(last, [latitude, longitude]) > 25) {
+      trail.push([+latitude.toFixed(5), +longitude.toFixed(5)]);
+      if (trail.length > 1500) trail.splice(0, trail.length - 1500);
     }
     if (pushes === 0) push();
   }
@@ -201,6 +218,8 @@ instead.</p>
       lon: +lastFix.lon.toFixed(5),
       alt: lastFix.alt == null ? null : Math.round(lastFix.alt),
       gained_m: Math.round(gained),
+      climb_s: Math.round(climbS),
+      trail,
       lap,
       msg: $('msg').value.trim().slice(0, 140),
       time: new Date().toISOString(),
@@ -238,6 +257,13 @@ instead.</p>
     } catch (err) {
       say(`Push failed (${err.message}). Will retry next minute.`, active);
     }
+  }
+
+  /** Quick metres between two [lat,lon] pairs (equirectangular, fine at 25 m). */
+  function crumbDist(a, b) {
+    const x = (b[1] - a[1]) * Math.cos(((a[0] + b[0]) / 2) * Math.PI / 180);
+    const y = b[0] - a[0];
+    return Math.sqrt(x * x + y * y) * 111320;
   }
 
   const auth = (token) => ({

@@ -26,6 +26,7 @@ const WALL_POLL_MS = 60_000;
 
 let map;
 let liveMarker;
+let liveTrail;
 let challenge;
 const varLayers = new Map();
 
@@ -200,7 +201,9 @@ function setLive(loc) {
     } else {
       status.textContent = 'Not live right now. This lights up on the day.';
     }
+    $('#live-pace').hidden = true;
     if (liveMarker && map.hasLayer(liveMarker)) map.removeLayer(liveMarker);
+    if (liveTrail && map.hasLayer(liveTrail)) map.removeLayer(liveTrail);
     return;
   }
 
@@ -225,12 +228,47 @@ function setLive(loc) {
     renderCalories(gained);
   }
 
+  renderPace(loc);
+
+  // Connected breadcrumb trail — where Pawel has actually been today.
+  if (Array.isArray(loc.trail) && loc.trail.length > 1) {
+    if (!liveTrail) {
+      liveTrail = L.polyline(loc.trail, {
+        color: '#f76707', weight: 4, opacity: 0.85,
+        dashArray: '1 8', lineCap: 'round', lineJoin: 'round',
+      });
+    } else {
+      liveTrail.setLatLngs(loc.trail);
+    }
+    if (!map.hasLayer(liveTrail)) liveTrail.addTo(map);
+    liveTrail.bringToFront();
+  }
+
   if (!liveMarker) {
     liveMarker = L.marker([loc.lat, loc.lon], { icon: liveIcon(), zIndexOffset: 900 });
-    liveMarker.bindTooltip('Pawel is here', { direction: 'top', offset: [0, -14] });
+    liveMarker.bindTooltip('Pawel is HERE', { direction: 'top', offset: [0, -18] });
   }
   liveMarker.setLatLng([loc.lat, loc.lon]);
   if (!map.hasLayer(liveMarker)) liveMarker.addTo(map);
+}
+
+/** Climbing pace from ascent-only time — gondola rides and rests don't count. */
+function renderPace(loc) {
+  const box = $('#live-pace');
+  if (!loc.climb_s || loc.climb_s < 300 || !loc.gained_m || loc.gained_m < 100) {
+    box.hidden = true;
+    return;
+  }
+  const paceMh = loc.gained_m / (loc.climb_s / 3600);
+  const avgLapGain = challenge.totals.gain_m / challenge.totals.laps; // ~863 m
+  const minPerLap = (avgLapGain / paceMh) * 60;
+  const pct = Math.min(100, (loc.gained_m / challenge.target_m) * 100);
+  const lapsEquiv = (loc.gained_m / avgLapGain).toFixed(1);
+  box.hidden = false;
+  box.textContent =
+    `${pct.toFixed(0)}% done — the climbing of ${lapsEquiv} laps. ` +
+    `Pace ${num(Math.round(paceMh))} m/h of ascent, about ${Math.round(minPerLap)} min ` +
+    `of climbing per lap (gondola rides and snack breaks not counted).`;
 }
 
 function agoText(ms) {
@@ -247,11 +285,11 @@ function liveIcon() {
     className: 'map-pin live-pin',
     html:
       '<span class="pulse"></span>' +
-      '<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">' +
-      '<circle cx="12" cy="12" r="10" fill="#f76707" stroke="#fff" stroke-width="2.5"/>' +
-      '<circle cx="12" cy="12" r="3.4" fill="#fff"/></svg>',
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
+      '<svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="10" fill="#f76707" stroke="#fff" stroke-width="3"/>' +
+      '<circle cx="12" cy="12" r="3.6" fill="#fff"/></svg>',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
 }
 
