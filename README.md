@@ -1,8 +1,9 @@
 # Everesting on Foot
 
 A shareable web page for a single-push everesting attempt on the Squamish evac
-trails: 9,000 m of climbing over 11 laps, eight uphill variations, live
-position from my phone, and a comment wall for photos and heckling.
+trails: 9,000 m of climbing over 10 laps, eight uphill variations, live
+position from my phone, per-lap sign-ups, and a comment wall for photos
+and heckling.
 
 **Target 9,000 m · 10 laps · 8,628 m from laps · 33.8 km of climbing · first lap 7:45 a.m.**
 
