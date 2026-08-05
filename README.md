@@ -72,11 +72,15 @@ One-time setup, before challenge day:
 The lap +/− buttons and the status message field feed straight into what
 visitors see on the site.
 
-## Comments and photos
+## Comments and photos (the cheer wall)
 
-Comments run on [giscus](https://giscus.app), backed by this repo's GitHub
-Discussions — no server, no database. Visitors sign in with GitHub and can
-drag photos straight into the comment box.
+Anonymous, no sign-in. A tiny Vercel function (`wall/api/wall.js`, project
+`everesting-wall`, account pkudzia-1128) stores posts and photos in Vercel
+Blob. The page posts JSON (photos downscaled client-side to 1600 px JPEG)
+and polls the API once a minute. Guardrails: 500-char messages, 4 MB photos,
+a honeypot field, and a soft 5-posts/minute per-IP limit. Delete anything
+from the Vercel dashboard (Storage -> everesting-wall-store), or with
+`vercel blob del <pathname>` from `wall/`.
 
 ## Rebuilding
 
