@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Everesting on Foot — 9,000 m in Squamish</title>
-<meta name="description" content="The height of Everest, on foot, in one day. 11 laps of the Squamish evac trails, tracked live. Come walk a lap, leave a note, drop a photo.">
+<meta name="description" content="The height of Everest, on foot, in one day. Follow live, cheer, and join a lap — first one leaves at 7:45 a.m.">
 
 <meta property="og:title" content="Everesting on Foot — 9,000 m in Squamish">
 <meta property="og:description" content="The height of Everest, on foot, in one day. Follow live and come walk a lap.">
@@ -27,7 +27,6 @@
   </a>
   <div class="nav-links">
     <a href="tracker.html">Phone tracker</a>
-    <a href="https://github.com/pkudzia/everesting">GitHub</a>
   </div>
 </nav>
 
@@ -37,15 +36,10 @@
   </div>
   <div class="hero-words">
     <h1>The height of Everest. On foot. In one day.</h1>
-    <p class="sub" id="challenge-sub">Eleven laps up the Squamish evac trails, eight
-    different ways, until the watch says 9,000 metres of climbing.</p>
-    <div class="hero-ctas">
-      <a class="btn" id="cta-live" href="#live">Follow me live</a>
-      <a class="btn btn--outline" href="#map">See the trails</a>
-    </div>
+    <p class="sub" id="challenge-sub">Ten laps up the Squamish evac trails until the
+    watch says 9,000 metres of climbing. First lap leaves at 7:45 a.m.</p>
   </div>
   <p class="hero-aside">Yes, this is a terrible idea. That's why you should come watch.</p>
-  <dl class="stat-strip" id="totals" style="grid-column: 1 / -1;"></dl>
 </header>
 
 <section class="section--band band--pear" id="live">
@@ -60,9 +54,8 @@
       <div class="progress-bar" id="progress-bar"></div>
       <div class="progress-label" id="progress-label"></div>
     </div>
-    <p class="live-hint">On challenge day this shows my position on the map below,
-    fresh from my phone about once a minute. Come up and walk a lap — any lap,
-    any pace. The trailhead is by the Sea to Sky Gondola base.</p>
+    <p class="live-hint">On the day this shows my position on the map below, fresh
+    from my phone about once a minute. The trailhead is by the Sea to Sky Gondola base.</p>
   </div>
 </section>
 
@@ -90,44 +83,32 @@
   </div>
 </section>
 
-<section class="map-section" id="map-section">
-  <div id="map" aria-label="Map of all eight uphill variations"></div>
-  <div class="map-legend" id="legend"></div>
-</section>
-
-<section class="section plan-section" id="plan-section">
-  <h2>10 laps, first one at <span class="hl" style="--hl: oklch(68% 0.24 18 / 0.35)">7:45 a.m.</span></h2>
-  <p class="note" id="plan-note"></p>
-  <p class="summit-note" id="crew-count"></p>
+<section class="section plan-section" id="laps">
+  <h2>Come walk a lap</h2>
+  <p class="note">Roughly 1 h 15 per lap, gondola down. Times are estimates —
+  watch the live dot above. Type your name, hit Join on a lap, done. No sign-in.</p>
+  <div class="join-bar">
+    <input id="join-name" type="text" maxlength="40" placeholder="Your name" autocomplete="name">
+    <span class="wall-feedback" id="join-feedback" role="status"></span>
+  </div>
   <div class="plan-scroll">
     <table class="plan" id="plan-table">
       <thead>
-        <tr><th>Lap</th><th>Trail</th><th>Distance</th><th>Gain</th><th>Total climbed</th><th>Who's coming</th></tr>
+        <tr><th>Lap</th><th>Leaves</th><th>Trail</th><th>Who's coming</th><th></th></tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
-  <p class="summit-note">The long, gentle trails go first while the legs are fresh.
-  The last three laps are the shortest, steepest line on the hill, because by then
-  every flat metre is an insult. Joining uses a GitHub sign-in, same as the comments.</p>
 </section>
 
-<section class="section vars-head" id="vars">
-  <h2>Eight ways up the same hill</h2>
-  <p class="note">Every one starts at the valley floor and tops out around 885 m.
-  Grab a GPX and pick your poison.</p>
-  <main id="variations"></main>
+<section class="map-section" id="map-section">
+  <div id="map" aria-label="Map of the uphill trail variations"></div>
+  <div class="map-legend" id="legend"></div>
 </section>
 
-<footer class="footer">
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track" id="marquee-track"></div>
-  </div>
-  <div class="footer-meta">
-    <p>Routes drawn in Strava. Elevation computed from the GPX with a 9-point moving
-    average, so the numbers match a watch instead of flattering me. Map data
-    © OpenStreetMap contributors. <a href="https://github.com/pkudzia/everesting">Source on GitHub</a>.</p>
-  </div>
+<footer class="footer-simple section">
+  <p>Routes drawn in Strava. Map data © OpenStreetMap contributors.</p>
+  <p class="footer-name">Pawel Kudzia</p>
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

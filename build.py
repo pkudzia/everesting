@@ -139,6 +139,20 @@ LAP_ORDER = [6, 5, 3, 7, 2, 4, 8, 1, 1, 1]
 
 FIRST_LAP = "7:45 a.m."
 
+# Lap 1 leaves at 7:45 aiming to catch the 9:00 gondola down, so the working
+# estimate is 75 minutes per lap including the ride back to the bottom.
+FIRST_LAP_MINUTES = 7 * 60 + 45
+LAP_MINUTES = 75
+
+
+def lap_start(lap):
+    """'7:45 a.m.' style start estimate for a 1-indexed lap."""
+    minutes = FIRST_LAP_MINUTES + (lap - 1) * LAP_MINUTES
+    h, m = divmod(minutes, 60)
+    suffix = "a.m." if h < 12 else "p.m."
+    h12 = h % 12 or 12
+    return f"{h12}:{m:02d} {suffix}"
+
 
 def haversine(a, b):
     """Metres between two (lat, lon) pairs."""
@@ -291,6 +305,7 @@ def build_plan(variations):
                 "distance_km": v["distance_km"],
                 "cum_gain_m": round(total_gain),
                 "cum_km": round(total_km, 1),
+                "start": lap_start(lap),
             }
         )
     return plan, round(total_gain), round(total_km, 1), crossed

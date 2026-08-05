@@ -599,3 +599,23 @@ a { color: oklch(48% 0.16 235); }
 }
 .wall-msg { margin: var(--space-xs) 0 0; font-size: var(--text-sm); overflow-wrap: anywhere; }
 .wall-meta { margin: var(--space-2xs) 0 0; font-size: 12px; color: oklch(20% 0.012 250 / 0.6); }
+
+/* ---------- bare-bones additions ---------- */
+
+.join-bar { display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); flex-wrap: wrap; }
+.join-bar input {
+  font: inherit; color: var(--color-ink); background: var(--color-paper);
+  border: 1.5px solid oklch(20% 0.012 250 / 0.16);
+  border-radius: var(--radius-input); padding: 10px 12px; max-width: 260px; width: 100%;
+}
+.join-bar input:focus { outline: 2px solid var(--color-focus); border-color: transparent; }
+.join-link { border: 0; font-family: var(--font-label); cursor: pointer; }
+.join-link[disabled] { opacity: 0.5; cursor: wait; }
+td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-width: 12ch; max-width: 30ch; }
+
+.footer-simple {
+  padding-block: var(--space-lg);
+  font-size: 13px; color: oklch(20% 0.012 250 / 0.6);
+}
+.footer-simple p { margin: 0 0 4px; }
+.footer-name { font-weight: 700; color: var(--color-ink); font-size: var(--text-base); }
