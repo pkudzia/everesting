@@ -1,129 +1,186 @@
-/* Background-GPS ingest for the live tracker.
-   The Overland iOS app (or anything that POSTs {lat,lon,alt}) hits this URL
-   while the phone is locked in a pocket. The endpoint accumulates ascent,
-   climbing time, breadcrumbs, and an inferred lap count, then writes
-   location.json to the repo's `live` branch — the site is unchanged.
+/* GPS ingest and manual lap control for the live tracker.
 
-   Auth: ?key=<PING_KEY env>. GitHub write: GITHUB_TOKEN env (fine-grained PAT,
-   Contents read/write on pkudzia/everesting only). */
+   Location apps POST coordinates throughout the day. At the gondola, Pawel
+   sends {action:"finish_lap"}; that deliberate tap is the only thing that
+   changes the public completed-lap count. */
 
 const OWNER = 'pkudzia';
 const REPO = 'everesting';
 const BRANCH = 'live';
 const PATH = 'location.json';
-
+const TOTAL_LAPS = 10;
 const GAIN_THRESHOLD_M = 3;
-const CLIMB_GAP_CAP_S = 120;   // rests/gondola never add climbing time
-const SUMMIT_ALT = 750;        // above this = topped out
-const BASE_ALT = 150;          // back below this after topping = next lap
+const CLIMB_GAP_CAP_S = 120;
 const CRUMB_MIN_M = 25;
 const TRAIL_CAP = 1500;
+const ALLOWED_ORIGINS = ['https://pkudzia.github.io', 'http://localhost:8765', 'http://localhost:8801'];
 
 export default async function handler(req, res) {
+  const origin = req.headers.origin;
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).end();
+
   if (!process.env.PING_KEY || (req.query.key || '') !== process.env.PING_KEY) {
     return res.status(401).json({ error: 'bad key' });
   }
   const token = process.env.GITHUB_TOKEN;
   if (!token) return res.status(500).json({ error: 'GITHUB_TOKEN not configured' });
 
-  // Accept an Overland batch ({locations:[GeoJSON,...]}) or a bare {lat,lon,alt}.
   const body = req.body || {};
-  let pts = [];
-  if (Array.isArray(body.locations)) {
-    pts = body.locations
-      .map((l) => ({
-        lat: l.geometry?.coordinates?.[1],
-        lon: l.geometry?.coordinates?.[0],
-        alt: numOrNull(l.properties?.altitude),
-        t: Date.parse(l.properties?.timestamp) || Date.now(),
-      }))
-      .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));
-  } else if (Number.isFinite(body.lat) && Number.isFinite(body.lon)) {
-    pts = [{ lat: body.lat, lon: body.lon, alt: numOrNull(body.alt), t: Date.now() }];
+  if (body.action === 'status') {
+    const current = await readLocation(token);
+    if (!current.ok) return res.status(502).json({ error: `GitHub read ${current.status}` });
+    return res.status(200).json({ result: 'ok', completed_laps: completedLaps(current.location) });
   }
-  if (!pts.length) return res.status(200).json({ result: 'ok' });
-  pts.sort((a, b) => a.t - b.t);
+  if (['finish_lap', 'undo_lap', 'offline'].includes(body.action)) {
+    return handleAction(body, token, res);
+  }
 
-  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
-  const head = await fetch(`${url}?ref=${BRANCH}`, { headers: auth(token) });
-  if (!head.ok) return res.status(502).json({ error: `GitHub read ${head.status}` });
-  const file = await head.json();
-  let prev = {};
-  try { prev = JSON.parse(Buffer.from(file.content, 'base64').toString()); } catch {}
+  const points = parsePoints(body);
+  if (!points.length) return res.status(200).json({ result: 'ok' });
+  points.sort((a, b) => a.t - b.t);
 
-  const s = {
-    gained: prev.gained_m || 0,
-    climbS: prev.climb_s || 0,
-    trail: Array.isArray(prev.trail) ? prev.trail : [],
-    lap: prev.lap || 1,
-    topped: !!prev.topped,
-    lastAlt: numOrNull(prev.lastAlt),
-    lastGainT: numOrNull(prev.lastGainT),
+  const current = await readLocation(token);
+  if (!current.ok) return res.status(502).json({ error: `GitHub read ${current.status}` });
+  const { file, location: previous } = current;
+  const state = {
+    gained: previous.gained_m || 0,
+    climbS: previous.climb_s || 0,
+    trail: Array.isArray(previous.trail) ? previous.trail : [],
+    completed: completedLaps(previous),
+    lastAlt: numOrNull(previous.lastAlt),
+    lastGainT: numOrNull(previous.lastGainT),
   };
-  const lastSeen = prev.time ? Date.parse(prev.time) : 0;
+  const lastSeen = previous.time ? Date.parse(previous.time) : 0;
 
-  for (const p of pts) {
-    if (p.t <= lastSeen) continue; // already processed (Overland re-sends until acked)
-    if (p.alt != null) {
-      if (s.lastAlt != null) {
-        const d = p.alt - s.lastAlt;
-        if (Math.abs(d) >= GAIN_THRESHOLD_M) {
-          if (d > 0) {
-            s.gained += d;
-            if (s.lastGainT) s.climbS += Math.min(CLIMB_GAP_CAP_S, (p.t - s.lastGainT) / 1000);
-            s.lastGainT = p.t;
+  for (const point of points) {
+    if (point.t <= lastSeen) continue;
+    if (point.alt != null) {
+      if (state.lastAlt != null) {
+        const change = point.alt - state.lastAlt;
+        if (Math.abs(change) >= GAIN_THRESHOLD_M) {
+          if (change > 0) {
+            state.gained += change;
+            if (state.lastGainT) {
+              state.climbS += Math.min(CLIMB_GAP_CAP_S, (point.t - state.lastGainT) / 1000);
+            }
+            state.lastGainT = point.t;
           }
-          s.lastAlt = p.alt;
+          state.lastAlt = point.alt;
         }
       } else {
-        s.lastAlt = p.alt;
+        state.lastAlt = point.alt;
       }
-      if (p.alt > SUMMIT_ALT) s.topped = true;
-      if (s.topped && p.alt < BASE_ALT) { s.lap += 1; s.topped = false; }
     }
-    const last = s.trail[s.trail.length - 1];
-    if (!last || crumbDist(last, [p.lat, p.lon]) > CRUMB_MIN_M) {
-      s.trail.push([+p.lat.toFixed(5), +p.lon.toFixed(5)]);
-      if (s.trail.length > TRAIL_CAP) s.trail.splice(0, s.trail.length - TRAIL_CAP);
+    const last = state.trail[state.trail.length - 1];
+    if (!last || crumbDist(last, [point.lat, point.lon]) > CRUMB_MIN_M) {
+      state.trail.push([+point.lat.toFixed(5), +point.lon.toFixed(5)]);
+      if (state.trail.length > TRAIL_CAP) state.trail.splice(0, state.trail.length - TRAIL_CAP);
     }
   }
 
-  const newest = pts[pts.length - 1];
+  const newest = points[points.length - 1];
   const payload = {
     active: true,
     lat: +newest.lat.toFixed(5),
     lon: +newest.lon.toFixed(5),
     alt: newest.alt == null ? null : Math.round(newest.alt),
-    gained_m: Math.round(s.gained),
-    climb_s: Math.round(s.climbS),
-    trail: s.trail,
-    lap: s.lap,
-    msg: prev.msg || '',
+    gained_m: Math.round(state.gained),
+    climb_s: Math.round(state.climbS),
+    trail: state.trail,
+    completed_laps: state.completed,
+    lap: Math.min(TOTAL_LAPS, state.completed + 1),
+    msg: previous.msg || '',
     time: new Date(newest.t).toISOString(),
-    // accumulator state, carried inside the same file
-    topped: s.topped,
-    lastAlt: s.lastAlt,
-    lastGainT: s.lastGainT,
+    lastAlt: state.lastAlt,
+    lastGainT: state.lastGainT,
   };
 
-  const put = await fetch(url, {
+  const put = await writeLocation(token, file.sha, payload, 'live: location');
+  if (!put.ok) return res.status(502).json({ error: `GitHub write ${put.status}` });
+  return res.status(200).json({ result: 'ok', completed_laps: state.completed });
+}
+
+async function handleAction(body, token, res) {
+  // Retry once if a GPS update lands at the same moment as the button tap.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const current = await readLocation(token);
+    if (!current.ok) return res.status(502).json({ error: `GitHub read ${current.status}` });
+    const completedBefore = completedLaps(current.location);
+    let completed = completedBefore;
+    if (body.action === 'finish_lap') completed = Math.min(TOTAL_LAPS, completed + 1);
+    if (body.action === 'undo_lap') completed = Math.max(0, completed - 1);
+
+    const payload = {
+      ...current.location,
+      active: body.action === 'offline' ? false : true,
+      completed_laps: completed,
+      lap: Math.min(TOTAL_LAPS, completed + 1),
+      time: new Date().toISOString(),
+    };
+    if (typeof body.msg === 'string') payload.msg = body.msg.trim().slice(0, 140);
+
+    const put = await writeLocation(token, current.file.sha, payload, `live: ${body.action}`);
+    if (put.ok) return res.status(200).json({ result: 'ok', completed_laps: completed });
+    if (put.status !== 409 && put.status !== 422) {
+      return res.status(502).json({ error: `GitHub write ${put.status}` });
+    }
+  }
+  return res.status(409).json({ error: 'Update collided with GPS. Tap once more.' });
+}
+
+function parsePoints(body) {
+  if (Array.isArray(body.locations)) {
+    return body.locations
+      .map((location) => ({
+        lat: location.geometry?.coordinates?.[1],
+        lon: location.geometry?.coordinates?.[0],
+        alt: numOrNull(location.properties?.altitude),
+        t: Date.parse(location.properties?.timestamp) || Date.now(),
+      }))
+      .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lon));
+  }
+  if (Number.isFinite(body.lat) && Number.isFinite(body.lon)) {
+    return [{ lat: body.lat, lon: body.lon, alt: numOrNull(body.alt), t: Date.now() }];
+  }
+  return [];
+}
+
+async function readLocation(token) {
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}?ref=${BRANCH}`;
+  const response = await fetch(url, { headers: auth(token) });
+  if (!response.ok) return { ok: false, status: response.status };
+  const file = await response.json();
+  let location = {};
+  try { location = JSON.parse(Buffer.from(file.content, 'base64').toString()); } catch {}
+  return { ok: true, file, location };
+}
+
+function writeLocation(token, sha, payload, message) {
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
+  return fetch(url, {
     method: 'PUT',
     headers: { ...auth(token), 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      message: 'live: ping',
+      message,
       branch: BRANCH,
-      sha: file.sha,
+      sha,
       content: Buffer.from(JSON.stringify(payload)).toString('base64'),
     }),
   });
-  if (!put.ok) return res.status(502).json({ error: `GitHub write ${put.status}` });
-
-  // Overland clears its queue when it sees {"result": "ok"}.
-  return res.status(200).json({ result: 'ok' });
 }
 
-function numOrNull(v) { return Number.isFinite(v) ? v : null; }
+function completedLaps(location) {
+  const fallback = Math.max(0, (Number(location.lap) || 1) - 1);
+  const value = Number(location.completed_laps ?? fallback) || 0;
+  return Math.max(0, Math.min(TOTAL_LAPS, Math.round(value)));
+}
+
+function numOrNull(value) { return Number.isFinite(value) ? value : null; }
 
 function crumbDist(a, b) {
   const x = (b[1] - a[1]) * Math.cos(((a[0] + b[0]) / 2) * Math.PI / 180);

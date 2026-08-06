@@ -1,9 +1,8 @@
 # Everesting on Foot
 
 A shareable web page for a single-push everesting attempt on the Squamish evac
-trails: 9,000 m of climbing over 10 laps, eight uphill variations, live
-position from my phone, per-lap sign-ups, and a comment wall for photos
-and heckling.
+trails: 9,000 m of climbing over 10 laps, live position and progress from my
+phone, and a comment wall for photos and encouragement.
 
 **Target 9,000 m · 10 laps · 8,628 m from laps · 33.8 km of climbing · first lap 7:45 a.m.**
 
@@ -29,13 +28,6 @@ The laps bank 8,628 m; the remaining ~372 m of the 9,000 gets picked up as
 extra vertical between laps. The site's progress bar runs off the phone
 tracker's cumulative ascent, so it counts everything.
 
-## Lap sign-ups
-
-Each lap row on the site has a Join button that opens a prefilled GitHub
-issue ("Lap N — I'm in!"). The page reads the public issues API and lists
-every signed-up username under its lap. Closing an issue removes the
-sign-up. No backend, no database.
-
 ## Layout
 
 ```
@@ -54,35 +46,30 @@ Two ways to feed the tracker; both write the same `location.json` on the
 records GPS in the background and POSTs batches to
 `https://everesting-wall.vercel.app/api/ping?key=<PING_KEY>`. The endpoint
 (`wall/api/ping.js`) accumulates ascent (3 m threshold), climbing-only time
-(gaps capped at 2 min, so gondola rides don't count), breadcrumbs, and infers
-the lap number from altitude (top out above 750 m, return below 150 m = next
-lap). Requires two Vercel env vars on `everesting-wall`: `PING_KEY` (set) and
+(gaps capped at 2 min) and breadcrumbs. Completed climbs are never guessed
+from GPS: tap **Finish this climb** on `tracker.html` when loading the gondola.
+Requires two Vercel env vars on `everesting-wall`: `PING_KEY` (set) and
 `GITHUB_TOKEN` (a fine-grained PAT, Contents read/write on this repo only).
 
-**Screen-on (backup): the web tracker.** `docs/tracker.html` is the phone side. It watches GPS in the browser and
-commits `location.json` to the **`live` branch** (never `main`, so Pages never
-rebuilds) via the GitHub contents API, about once a minute. The main page
+**Screen-on (backup): the web tracker.** `docs/tracker.html` can also watch GPS
+in the browser and send it through `/api/ping` about once a minute. The main page
 polls the contents API for that file every 75 s (uncached and fresh; the
 unauthenticated limit is 60 requests/hour per viewer IP) and falls back to
 `raw.githubusercontent.com` for rate-limited viewers, which Fastly caches for
-up to 5 minutes regardless of query string. Fresh data shows a pulsing
-marker, current lap, altitude, and a progress bar to 9,000 m.
+up to 5 minutes regardless of query string. Fresh data shows a pulsing marker,
+the manually completed climb count, and progress through all ten climbs.
 
 One-time setup, before challenge day:
 
-1. Create a **fine-grained personal access token** at
-   <https://github.com/settings/personal-access-tokens/new> —
-   repository access: only `everesting`; permissions: **Contents: read and
-   write**; expiry: a week is plenty.
-2. On your phone, open `https://pkudzia.github.io/everesting/tracker.html`,
-   paste the token (it stays in the phone's localStorage), tap **Start
-   tracking**.
+1. On your phone, open `https://pkudzia.github.io/everesting/tracker.html`.
+2. Paste the `PING_KEY` (it stays in the phone's localStorage).
+3. If Overland is not running, tap **Start sharing location**.
 3. Keep the screen on. Browsers pause GPS in background tabs; a battery pack
    and minimum brightness beat a dead tracker. The page grabs a screen wake
    lock where the browser supports it.
 
-The lap +/− buttons and the status message field feed straight into what
-visitors see on the site.
+At each gondola ride, tap **Finish this climb**. An undo button is available
+for accidental taps.
 
 ## Comments and photos (the cheer wall)
 

@@ -4,272 +4,208 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Everesting — phone tracker</title>
+<title>Pawel's event controls</title>
 <style>
-  /* Hallmark · genre: playful · theme: Hum (companion page to index) */
   :root {
-    --paper: oklch(97% 0.012 95); --paper-2: oklch(94% 0.016 95);
-    --ink: oklch(20% 0.012 250); --dim: oklch(20% 0.012 250 / 0.65);
-    --line: oklch(20% 0.012 250 / 0.16);
-    --pear: oklch(86% 0.18 95); --pear-deep: oklch(72% 0.16 95);
-    --mint: oklch(80% 0.16 150); --coral: oklch(68% 0.24 18);
-    --focus: oklch(55% 0.19 235);
-    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    --paper: #fbf8ed; --paper-2: #efebe0; --ink: #26282d;
+    --dim: #66676a; --line: #d2cec3; --pear: #dce96a;
+    --pear-deep: #aeba42; --coral: #e5554f; --mint: #78d69a;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; background: var(--paper); color: var(--ink);
-    font: 16px/1.55 "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
-    padding: 20px; max-width: 440px; margin-inline: auto;
+    max-width: 440px; margin: 0 auto; padding: 20px;
+    background: var(--paper); color: var(--ink);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
-  h1 { font-size: 24px; margin: 8px 0 4px; letter-spacing: -0.02em; }
-  p.sub { color: var(--dim); font-size: 14px; margin: 0 0 16px; }
-  .setup {
-    background: var(--paper-2); border-radius: 16px; padding: 14px 16px;
-    font-size: 13px; color: var(--ink); margin: 0 0 18px;
+  h1 { margin: 4px 0; font-size: 26px; line-height: 1.15; }
+  h2 { margin: 0 0 4px; font-size: 18px; }
+  p { margin: 0; }
+  .sub { color: var(--dim); margin-bottom: 18px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-top: 14px; }
+  label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+  input {
+    width: 100%; border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 12px; font: inherit; background: #fff;
   }
-  .setup strong { display: block; margin-bottom: 6px; }
-  .setup ol { margin: 0; padding-left: 18px; }
-  .setup li { margin-bottom: 4px; }
-  label { display: block; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin: 14px 0 5px; }
-  input, textarea {
-    width: 100%; background: #fff; border: 1.5px solid var(--line);
-    color: var(--ink); border-radius: 12px; padding: 11px 12px; font-size: 16px;
-    font-family: inherit;
-  }
-  input:focus, textarea:focus { outline: 2px solid var(--focus); border-color: transparent; }
+  input:focus, button:focus-visible { outline: 3px solid #4d8dd9; outline-offset: 2px; }
   button {
-    font: inherit; font-weight: 700; border: none; border-radius: 999px;
-    padding: 14px; width: 100%; cursor: pointer; margin-top: 16px;
+    width: 100%; border: 0; border-radius: 999px; padding: 14px;
+    font: inherit; font-weight: 750; cursor: pointer;
   }
-  #start {
-    background: var(--pear); color: var(--ink);
-    box-shadow: 0 4px 0 0 var(--pear-deep);
-    transition: transform 140ms cubic-bezier(0.2,0.7,0.3,1), box-shadow 140ms cubic-bezier(0.2,0.7,0.3,1);
+  button:disabled { opacity: .55; cursor: wait; }
+  #finish {
+    margin-top: 12px; background: var(--pear); color: var(--ink);
+    box-shadow: 0 4px 0 var(--pear-deep); font-size: 18px;
   }
-  #start:active { transform: translateY(3px); box-shadow: 0 1px 0 0 var(--pear-deep); }
-  #stop { background: var(--ink); color: var(--paper); display: none; }
-  .lap-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
-  .lap-row button { width: 56px; margin: 0; padding: 10px; font-size: 20px; background: #fff; color: var(--ink); border: 1.5px solid var(--line); border-radius: 14px; }
-  .lap-row .lap-val { font-family: var(--mono); font-size: 26px; font-weight: 700; min-width: 2ch; text-align: center; }
-  #status {
-    margin-top: 20px; padding: 14px; background: #fff;
-    border: 1.5px solid var(--line); border-radius: 16px;
-    font-family: var(--mono); font-size: 13px; white-space: pre-line; color: var(--dim);
-    min-height: 84px;
-  }
-  #status.live { border-color: var(--mint); color: var(--ink); }
-  .warn { color: var(--coral); font-size: 13px; margin-top: 14px; font-weight: 500; }
-  a { color: oklch(48% 0.16 235); }
+  #finish:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--pear-deep); }
+  #undo { margin-top: 14px; padding: 8px; background: transparent; color: var(--dim); font-size: 13px; }
+  #start { margin-top: 12px; background: var(--ink); color: var(--paper); }
+  #stop { margin-top: 12px; background: var(--paper-2); color: var(--ink); display: none; }
+  .count { display: flex; align-items: baseline; gap: 9px; margin: 8px 0 2px; }
+  .count strong { font-size: 42px; line-height: 1; }
+  .count span { color: var(--dim); }
+  #status { min-height: 1.5em; margin-top: 12px; font-weight: 650; }
+  #status.good { color: #28784a; }
+  #status.bad { color: var(--coral); }
+  .small { margin-top: 8px; color: var(--dim); font-size: 13px; }
 </style>
 </head>
 <body>
-<h1>Phone tracker</h1>
-<p class="sub">Start this at the trailhead and keep the tab open. It pushes your
-position to the site about once a minute.</p>
+<h1>Event controls</h1>
+<p class="sub">Keep this page open for tomorrow.</p>
 
-<div class="setup">
-  <strong>First time? Two minutes of setup:</strong>
-  <ol>
-    <li>On any device, create a <a href="https://github.com/settings/personal-access-tokens/new">fine-grained GitHub token</a> —
-        repository access: only <em>everesting</em>; permissions: <em>Contents → Read and write</em>.</li>
-    <li>Paste it below. It stays in this phone's storage, nowhere else.</li>
-    <li>Tap <em>Start tracking</em> and allow location. That's it — the site updates itself.</li>
-  </ol>
+<div class="card">
+  <label for="key">Tracker key</label>
+  <input id="key" type="password" autocomplete="off" placeholder="Paste once">
+  <p class="small">Saved on this phone.</p>
 </div>
 
-<label for="token">GitHub token (stored on this phone only)</label>
-<input id="token" type="password" autocomplete="off"
-       placeholder="github_pat_… (contents read/write on pkudzia/everesting)">
-
-<label for="msg">Status message shown on the site (optional)</label>
-<textarea id="msg" rows="2" placeholder="e.g. Feeling good, join me for a lap!"></textarea>
-
-<div class="lap-row">
-  <button id="lap-minus" type="button" aria-label="Lap down">−</button>
-  <span class="lap-val" id="lap-val">1</span>
-  <button id="lap-plus" type="button" aria-label="Lap up">+</button>
-  <span style="color:var(--dim);font-size:14px;">current lap</span>
+<div class="card">
+  <h2>At the gondola</h2>
+  <div class="count"><strong id="completed">?</strong><span>of 10 finished</span></div>
+  <button id="finish" type="button">Finish this climb</button>
+  <button id="undo" type="button">Undo last tap</button>
 </div>
 
-<button id="start" type="button">Start tracking</button>
-<button id="stop" type="button">Stop &amp; go offline</button>
+<div class="card">
+  <h2>Share live location</h2>
+  <p class="small">Use this only if Overland is not already sharing your location.</p>
+  <button id="start" type="button">Start sharing location</button>
+  <button id="stop" type="button">Stop sharing</button>
+</div>
 
-<div id="status">Idle.</div>
-
-<p class="warn">Keep the screen on while tracking — phone browsers pause GPS in
-locked or background tabs. Plug into a battery pack and drop screen brightness
-instead.</p>
+<p id="status" role="status">Ready.</p>
 
 <script>
 (() => {
-  const OWNER = 'pkudzia';
-  const REPO = 'everesting';
-  const BRANCH = 'live';
-  const PATH = 'location.json';
+  const API = 'https://everesting-wall.vercel.app/api/ping';
   const PUSH_MS = 60_000;
-  // Phone barometer/GPS altitude jitters; only count climbs bigger than this.
-  const GAIN_THRESHOLD_M = 3;
-
-  const $ = (id) => document.getElementById(id);
-  const tokenInput = $('token');
-  const status = $('status');
-
-  tokenInput.value = localStorage.getItem('everesting_token') || '';
-
+  const keyInput = document.getElementById('key');
+  const completed = document.getElementById('completed');
+  const status = document.getElementById('status');
+  const start = document.getElementById('start');
+  const stop = document.getElementById('stop');
   let watchId = null;
   let pushTimer = null;
   let wakeLock = null;
   let lastFix = null;
-  let lastAlt = null;
-  let gained = 0;
-  let lap = 1;
-  let sha = null; // content sha of location.json on the live branch
-  let pushes = 0;
-  // Breadcrumb trail + time-spent-climbing. Climb time only accumulates while
-  // altitude is rising (gaps capped at 2 min), so gondola rides and long rests
-  // don't count toward the pace shown on the site.
-  const trail = [];
-  let climbS = 0;
-  let lastGainAt = null;
+  let sentFirstFix = false;
 
-  const say = (text, live) => {
-    status.textContent = text;
-    status.classList.toggle('live', !!live);
+  keyInput.value = localStorage.getItem('everesting_ping_key') || '';
+
+  const say = (message, kind = '') => {
+    status.textContent = message;
+    status.className = kind;
   };
 
-  $('lap-plus').onclick = () => { lap += 1; $('lap-val').textContent = lap; };
-  $('lap-minus').onclick = () => { lap = Math.max(1, lap - 1); $('lap-val').textContent = lap; };
+  const key = () => {
+    const value = keyInput.value.trim();
+    if (!value) {
+      say('Paste the tracker key first.', 'bad');
+      return null;
+    }
+    localStorage.setItem('everesting_ping_key', value);
+    return value;
+  };
 
-  $('start').onclick = async () => {
-    const token = tokenInput.value.trim();
-    if (!token) { say('Paste the GitHub token first.'); return; }
-    if (!('geolocation' in navigator)) { say('No geolocation on this browser.'); return; }
-    localStorage.setItem('everesting_token', token);
+  async function send(body) {
+    const value = key();
+    if (!value) throw new Error('missing key');
+    const response = await fetch(`${API}?key=${encodeURIComponent(value)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+    if (Number.isFinite(data.completed_laps)) completed.textContent = data.completed_laps;
+    return data;
+  }
 
+  async function lapAction(action) {
+    const button = action === 'finish_lap' ? document.getElementById('finish') : document.getElementById('undo');
+    button.disabled = true;
+    say('Updating…');
+    try {
+      const data = await send({ action });
+      say(`${data.completed_laps} of 10 climbs finished.`, 'good');
+    } catch (error) {
+      if (error.message !== 'missing key') say(`Update failed: ${error.message}`, 'bad');
+    }
+    button.disabled = false;
+  }
+
+  document.getElementById('finish').onclick = () => lapAction('finish_lap');
+  document.getElementById('undo').onclick = () => lapAction('undo_lap');
+  keyInput.addEventListener('change', loadCount);
+  if (keyInput.value) loadCount();
+
+  async function loadCount() {
+    try {
+      await send({ action: 'status' });
+      say('Ready.', 'good');
+    } catch (error) {
+      if (error.message !== 'missing key') say(`Could not load progress: ${error.message}`, 'bad');
+    }
+  }
+
+  start.onclick = async () => {
+    if (!key()) return;
+    if (!navigator.geolocation) {
+      say('This browser cannot share location.', 'bad');
+      return;
+    }
     watchId = navigator.geolocation.watchPosition(onFix, onGeoError, {
       enableHighAccuracy: true, maximumAge: 5000, timeout: 30000,
     });
-
-    // Wake lock keeps the screen (and therefore GPS) alive where supported.
     try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
-
-    pushTimer = setInterval(push, PUSH_MS);
-    $('start').style.display = 'none';
-    $('stop').style.display = 'block';
-    say('Waiting for first GPS fix…', true);
+    pushTimer = setInterval(pushLocation, PUSH_MS);
+    start.style.display = 'none';
+    stop.style.display = 'block';
+    say('Waiting for GPS…');
   };
 
-  $('stop').onclick = async () => {
+  stop.onclick = async () => {
     if (watchId != null) navigator.geolocation.clearWatch(watchId);
+    watchId = null;
     clearInterval(pushTimer);
     if (wakeLock) { try { await wakeLock.release(); } catch {} }
-    await push(false);
-    $('start').style.display = 'block';
-    $('stop').style.display = 'none';
-    say('Stopped. Site now shows "not live".');
+    try { await send({ action: 'offline' }); } catch {}
+    start.style.display = 'block';
+    stop.style.display = 'none';
+    say('Location sharing stopped.');
   };
 
-  // Re-acquire the wake lock when the tab comes back to the foreground.
+  function onFix(position) {
+    lastFix = {
+      lat: position.coords.latitude,
+      lon: position.coords.longitude,
+      alt: position.coords.altitude,
+    };
+    if (!sentFirstFix) {
+      sentFirstFix = true;
+      pushLocation();
+    }
+  }
+
+  function onGeoError(error) {
+    say(`GPS error: ${error.message}`, 'bad');
+  }
+
+  async function pushLocation() {
+    if (!lastFix) return;
+    try {
+      await send(lastFix);
+      say(`Location sent at ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}.`, 'good');
+    } catch (error) {
+      if (error.message !== 'missing key') say(`Location failed: ${error.message}`, 'bad');
+    }
+  }
+
   document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible' && watchId != null) {
       try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
     }
-  });
-
-  function onFix(pos) {
-    const { latitude, longitude, altitude } = pos.coords;
-    lastFix = { lat: latitude, lon: longitude, alt: altitude, at: Date.now() };
-    if (altitude != null) {
-      if (lastAlt != null) {
-        const d = altitude - lastAlt;
-        if (Math.abs(d) >= GAIN_THRESHOLD_M) {
-          if (d > 0) {
-            gained += d;
-            const now = Date.now();
-            if (lastGainAt != null) climbS += Math.min(120, (now - lastGainAt) / 1000);
-            lastGainAt = now;
-          }
-          lastAlt = altitude;
-        }
-      } else {
-        lastAlt = altitude;
-      }
-    }
-    // Breadcrumb every ~25 m of movement, capped so the payload stays small.
-    const last = trail[trail.length - 1];
-    if (!last || crumbDist(last, [latitude, longitude]) > 25) {
-      trail.push([+latitude.toFixed(5), +longitude.toFixed(5)]);
-      if (trail.length > 1500) trail.splice(0, trail.length - 1500);
-    }
-    if (pushes === 0) push();
-  }
-
-  function onGeoError(err) {
-    say(`GPS error: ${err.message}. Still trying…`, true);
-  }
-
-  async function push(active = true) {
-    if (!lastFix) return;
-    const token = localStorage.getItem('everesting_token');
-    const payload = {
-      active,
-      lat: +lastFix.lat.toFixed(5),
-      lon: +lastFix.lon.toFixed(5),
-      alt: lastFix.alt == null ? null : Math.round(lastFix.alt),
-      gained_m: Math.round(gained),
-      climb_s: Math.round(climbS),
-      trail,
-      lap,
-      msg: $('msg').value.trim().slice(0, 140),
-      time: new Date().toISOString(),
-    };
-    const body = {
-      message: active ? `live: lap ${lap}` : 'live: offline',
-      content: btoa(unescape(encodeURIComponent(JSON.stringify(payload)))),
-      branch: BRANCH,
-    };
-    if (sha) body.sha = sha;
-
-    const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
-    try {
-      if (!sha) {
-        const head = await fetch(`${url}?ref=${BRANCH}`, { headers: auth(token) });
-        if (head.ok) sha = (await head.json()).sha;
-        if (sha) body.sha = sha;
-      }
-      let res = await fetch(url, { method: 'PUT', headers: auth(token), body: JSON.stringify(body) });
-      if (res.status === 409 || res.status === 422) {
-        // Someone else moved the file; refetch the sha and retry once.
-        const head = await fetch(`${url}?ref=${BRANCH}`, { headers: auth(token) });
-        if (head.ok) { sha = (await head.json()).sha; body.sha = sha; }
-        res = await fetch(url, { method: 'PUT', headers: auth(token), body: JSON.stringify(body) });
-      }
-      if (!res.ok) throw new Error(`GitHub ${res.status}`);
-      sha = (await res.json()).content.sha;
-      pushes += 1;
-      say(
-        `LIVE — push #${pushes} at ${new Date().toLocaleTimeString()}\n` +
-        `lat ${payload.lat}  lon ${payload.lon}\n` +
-        `alt ${payload.alt ?? '?'} m   climbed ${payload.gained_m} m   lap ${lap}`,
-        active
-      );
-    } catch (err) {
-      say(`Push failed (${err.message}). Will retry next minute.`, active);
-    }
-  }
-
-  /** Quick metres between two [lat,lon] pairs (equirectangular, fine at 25 m). */
-  function crumbDist(a, b) {
-    const x = (b[1] - a[1]) * Math.cos(((a[0] + b[0]) / 2) * Math.PI / 180);
-    const y = b[0] - a[0];
-    return Math.sqrt(x * x + y * y) * 111320;
-  }
-
-  const auth = (token) => ({
-    Authorization: `Bearer ${token}`,
-    Accept: 'application/vnd.github+json',
-    'Content-Type': 'application/json',
   });
 })();
 </script>

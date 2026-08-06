@@ -17,8 +17,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
 
   if (req.method === 'GET') {
-    const fetchAll = async (prefix, cap) => {
-      const { blobs } = await list({ prefix, limit: 500 });
+    const fetchAll = async (cap) => {
+      const { blobs } = await list({ prefix: 'comments/', limit: 500 });
       // Pathnames embed (1e13 - timestamp), so ascending order = newest first.
       blobs.sort((a, b) => a.pathname.localeCompare(b.pathname));
       const items = await Promise.all(
@@ -33,9 +33,9 @@ export default async function handler(req, res) {
       );
       return items.filter(Boolean);
     };
-    const [posts, joins] = await Promise.all([fetchAll('comments/', 200), fetchAll('joins/', 200)]);
+    const posts = await fetchAll(200);
     res.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=60');
-    return res.status(200).json({ posts, joins });
+    return res.status(200).json({ posts });
   }
 
   if (req.method === 'POST') {
@@ -46,27 +46,12 @@ export default async function handler(req, res) {
     recent.push(now);
     hits.set(ip, recent);
 
-    const { name = '', message = '', photo = null, website = '', lap = null } = req.body || {};
+    const { name = '', message = '', photo = null, website = '' } = req.body || {};
     if (website) return res.status(400).json({ error: 'No bots.' }); // honeypot field
     const msg = String(message).trim().slice(0, 500);
     const who = String(name).trim().slice(0, 40) || 'Anonymous';
 
     const id = `${String(1e13 - now).padStart(13, '0')}-${Math.random().toString(36).slice(2, 8)}`;
-
-    // Lap sign-up: {lap, name} only, stored separately from the cheer wall.
-    if (lap != null) {
-      const lapNum = Math.round(Number(lap));
-      if (!Number.isFinite(lapNum) || lapNum < 1 || lapNum > 10) {
-        return res.status(400).json({ error: 'Pick a lap between 1 and 10.' });
-      }
-      const join = { name: who, lap: lapNum, time: new Date().toISOString() };
-      await put(`joins/${id}.json`, JSON.stringify(join), {
-        access: 'public',
-        contentType: 'application/json',
-        addRandomSuffix: false,
-      });
-      return res.status(200).json(join);
-    }
 
     if (!msg && !photo) return res.status(400).json({ error: 'Say something or show something.' });
 

@@ -290,6 +290,19 @@ a { color: oklch(48% 0.16 235); }
 .live-status { margin: var(--space-xs) 0 0; font-size: var(--text-md); font-weight: 500; }
 .live-hint { margin: var(--space-xs) 0 0; font-size: var(--text-sm); color: oklch(20% 0.012 250 / 0.66); max-width: 62ch; }
 
+.lap-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: var(--space-md);
+}
+.lap-summary strong {
+  font-size: clamp(3.5rem, 10vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+.lap-summary span { font-size: var(--text-md); font-weight: 650; }
+
 .progress {
   position: relative; margin: var(--space-sm) 0 0; height: 30px;
   background: var(--color-paper);
@@ -317,7 +330,7 @@ a { color: oklch(48% 0.16 235); }
 
 .map-section { margin: 0; }
 #map {
-  height: min(78vh, 640px);
+  height: min(68vh, 580px);
   background: var(--color-paper-2);
   z-index: 0;
 }
