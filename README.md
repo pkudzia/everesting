@@ -68,8 +68,9 @@ One-time setup, before challenge day:
    and minimum brightness beat a dead tracker. The page grabs a screen wake
    lock where the browser supports it.
 
-At each gondola ride, tap **Finish this climb**. An undo button is available
-for accidental taps.
+At each gondola ride, tap **Finished climb — on gondola**. The public page will
+show the gondola state. At the bottom, tap **Start next climb**. An undo button
+is available for accidental taps.
 
 ## Comments and photos (the cheer wall)
 

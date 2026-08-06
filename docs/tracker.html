@@ -37,6 +37,7 @@
     margin-top: 12px; background: var(--pear); color: var(--ink);
     box-shadow: 0 4px 0 var(--pear-deep); font-size: 18px;
   }
+  #start-climb { margin-top: 12px; background: var(--mint); color: var(--ink); display: none; }
   #finish:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--pear-deep); }
   #undo { margin-top: 14px; padding: 8px; background: transparent; color: var(--dim); font-size: 13px; }
   #start { margin-top: 12px; background: var(--ink); color: var(--paper); }
@@ -63,7 +64,8 @@
 <div class="card">
   <h2>At the gondola</h2>
   <div class="count"><strong id="completed">?</strong><span>of 10 finished</span></div>
-  <button id="finish" type="button">Finish this climb</button>
+  <button id="finish" type="button">Finished climb — on gondola</button>
+  <button id="start-climb" type="button">Start next climb</button>
   <button id="undo" type="button">Undo last tap</button>
 </div>
 
@@ -85,6 +87,8 @@
   const status = document.getElementById('status');
   const start = document.getElementById('start');
   const stop = document.getElementById('stop');
+  const finish = document.getElementById('finish');
+  const startClimb = document.getElementById('start-climb');
   let watchId = null;
   let pushTimer = null;
   let wakeLock = null;
@@ -119,16 +123,31 @@
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
     if (Number.isFinite(data.completed_laps)) completed.textContent = data.completed_laps;
+    if (data.state) showState(data.state, data.completed_laps);
     return data;
   }
 
+  function showState(state, count) {
+    if (count >= 10) {
+      finish.style.display = 'none';
+      startClimb.style.display = 'none';
+      return;
+    }
+    const onGondola = state === 'gondola' && count < 10;
+    finish.style.display = onGondola ? 'none' : 'block';
+    startClimb.style.display = onGondola ? 'block' : 'none';
+  }
+
   async function lapAction(action) {
-    const button = action === 'finish_lap' ? document.getElementById('finish') : document.getElementById('undo');
+    const button = action === 'finish_lap' ? finish : action === 'start_climb' ? startClimb : document.getElementById('undo');
     button.disabled = true;
     say('Updating…');
     try {
       const data = await send({ action });
-      say(`${data.completed_laps} of 10 climbs finished.`, 'good');
+      const message = data.state === 'gondola'
+        ? `On the gondola. ${data.completed_laps} of 10 finished.`
+        : `Starting climb ${Math.min(10, data.completed_laps + 1)}.`;
+      say(message, 'good');
     } catch (error) {
       if (error.message !== 'missing key') say(`Update failed: ${error.message}`, 'bad');
     }
@@ -136,6 +155,7 @@
   }
 
   document.getElementById('finish').onclick = () => lapAction('finish_lap');
+  document.getElementById('start-climb').onclick = () => lapAction('start_climb');
   document.getElementById('undo').onclick = () => lapAction('undo_lap');
   keyInput.addEventListener('change', loadCount);
   if (keyInput.value) loadCount();

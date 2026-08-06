@@ -34,9 +34,13 @@ export default async function handler(req, res) {
   if (body.action === 'status') {
     const current = await readLocation(token);
     if (!current.ok) return res.status(502).json({ error: `GitHub read ${current.status}` });
-    return res.status(200).json({ result: 'ok', completed_laps: completedLaps(current.location) });
+    return res.status(200).json({
+      result: 'ok',
+      completed_laps: completedLaps(current.location),
+      state: trackerState(current.location),
+    });
   }
-  if (['finish_lap', 'undo_lap', 'offline'].includes(body.action)) {
+  if (['finish_lap', 'start_climb', 'undo_lap', 'offline'].includes(body.action)) {
     return handleAction(body, token, res);
   }
 
@@ -94,6 +98,7 @@ export default async function handler(req, res) {
     trail: state.trail,
     completed_laps: state.completed,
     lap: Math.min(TOTAL_LAPS, state.completed + 1),
+    state: previous.state === 'gondola' ? 'gondola' : 'climbing',
     msg: previous.msg || '',
     time: new Date(newest.t).toISOString(),
     lastAlt: state.lastAlt,
@@ -115,17 +120,23 @@ async function handleAction(body, token, res) {
     if (body.action === 'finish_lap') completed = Math.min(TOTAL_LAPS, completed + 1);
     if (body.action === 'undo_lap') completed = Math.max(0, completed - 1);
 
+    let state = trackerState(current.location);
+    if (body.action === 'finish_lap') state = 'gondola';
+    if (body.action === 'start_climb' || body.action === 'undo_lap') state = 'climbing';
+    if (body.action === 'offline') state = 'offline';
+
     const payload = {
       ...current.location,
       active: body.action === 'offline' ? false : true,
       completed_laps: completed,
       lap: Math.min(TOTAL_LAPS, completed + 1),
+      state,
       time: new Date().toISOString(),
     };
     if (typeof body.msg === 'string') payload.msg = body.msg.trim().slice(0, 140);
 
     const put = await writeLocation(token, current.file.sha, payload, `live: ${body.action}`);
-    if (put.ok) return res.status(200).json({ result: 'ok', completed_laps: completed });
+    if (put.ok) return res.status(200).json({ result: 'ok', completed_laps: completed, state });
     if (put.status !== 409 && put.status !== 422) {
       return res.status(502).json({ error: `GitHub write ${put.status}` });
     }
@@ -178,6 +189,13 @@ function completedLaps(location) {
   const fallback = Math.max(0, (Number(location.lap) || 1) - 1);
   const value = Number(location.completed_laps ?? fallback) || 0;
   return Math.max(0, Math.min(TOTAL_LAPS, Math.round(value)));
+}
+
+function trackerState(location) {
+  if (location.state === 'gondola' || location.state === 'climbing' || location.state === 'offline') {
+    return location.state;
+  }
+  return location.active ? 'climbing' : 'offline';
 }
 
 function numOrNull(value) { return Number.isFinite(value) ? value : null; }

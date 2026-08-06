@@ -108,6 +108,7 @@ function setLive(location) {
   const rawCompleted = location.completed_laps ?? Math.max(0, oldCurrentLap - 1);
   const completed = Math.max(0, Math.min(challenge.totals.laps, Math.round(Number(rawCompleted) || 0)));
   const total = challenge.totals.laps;
+  const trackerState = location.state || (location.active ? 'climbing' : 'offline');
 
   dot.classList.toggle('on', fresh);
   when.textContent = Number.isFinite(age) ? `updated ${agoText(age)}` : '';
@@ -119,6 +120,8 @@ function setLive(location) {
 
   if (completed >= total) {
     status.textContent = 'All ten climbs are finished!';
+  } else if (fresh && trackerState === 'gondola') {
+    status.textContent = `Pawel is on the gondola after climb ${completed}.`;
   } else if (fresh) {
     status.textContent = `Pawel is on climb ${completed + 1}.`;
   } else if (location.active) {
