@@ -8,7 +8,6 @@ const el = (tag, cls, text) => {
   return node;
 };
 const num = (value) => value.toLocaleString('en-CA');
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const LIVE_API_URL = 'https://api.github.com/repos/pkudzia/everesting/contents/location.json?ref=live';
 const LIVE_RAW_URL = 'https://raw.githubusercontent.com/pkudzia/everesting/live/location.json';
@@ -34,34 +33,31 @@ async function init() {
     return;
   }
 
-  renderHeroFigure(challenge.target_m);
   renderMap(challenge);
   wireWall();
+  wireFacts();
   pollLive();
   setInterval(pollLive, LIVE_POLL_MS);
 }
 
-function countUp(node, target) {
-  if (reducedMotion) {
-    node.textContent = num(target);
-    return;
-  }
-  const duration = 1000;
-  let start;
-  const step = (time) => {
-    if (start === undefined) start = time;
-    const progress = Math.min(1, (time - start) / duration);
-    node.textContent = num(Math.round(target * (1 - Math.pow(1 - progress, 3))));
-    if (progress < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
+const FACTS = [
+  'Muscles turn only about a quarter of their fuel into climbing. The other 75% becomes heat, so this is also an elaborate sweating challenge.',
+  'Going down damages muscles more than going up. Taking the gondola is not lazy — it is peer-reviewed.',
+  'Above roughly a 30% grade, walking costs less energy than running. On the steepest section, sprinting is not on the menu for anyone.',
+  'As calf muscles tire, the body quietly moves more work to the hips. If the stride gets stranger every climb, the nervous system is renegotiating the contract.',
+  'The Achilles tendon returns some of the energy stored in each step like a spring. It is the most reliable teammate on the hill.',
+  'A kilogram on your feet costs much more energy than a kilogram on your back. Tiny shoes, enormous snack bag: science.',
+  'The body stores only about 2,000 calories of ready carbohydrate. The rest must be eaten while climbing, which makes snacks part of the equipment.',
+  'The most efficient slope for gaining elevation is around 25%. These trails are accidentally excellent climbing machines.',
+  'Encouragement can help tired muscles keep working. Leaving a comment is therefore a medically serious responsibility.',
+];
 
-function renderHeroFigure(target) {
-  const figure = $('#hero-figure');
-  const value = document.createTextNode('0');
-  figure.replaceChildren(value, el('span', 'unit', ' m'));
-  countUp({ set textContent(text) { value.textContent = text; } }, target);
+function wireFacts() {
+  const text = $('#fact-text');
+  let index = Math.floor(Math.random() * FACTS.length);
+  const show = () => { text.textContent = FACTS[index % FACTS.length]; };
+  $('#fact-next').addEventListener('click', () => { index += 1; show(); });
+  show();
 }
 
 async function pollLive() {
@@ -91,7 +87,8 @@ function setLive(location) {
   const status = $('#live-status');
   const when = $('#live-when');
   const progress = $('#progress');
-  const summary = $('#lap-summary');
+  const summary = $('#gain-summary');
+  const lapCount = $('#lap-count');
 
   if (!location) {
     dot.classList.remove('on');
@@ -99,6 +96,7 @@ function setLive(location) {
     status.textContent = 'No update yet. Check back when the event starts.';
     progress.hidden = true;
     summary.hidden = true;
+    lapCount.hidden = true;
     return;
   }
 
@@ -109,14 +107,17 @@ function setLive(location) {
   const completed = Math.max(0, Math.min(challenge.totals.laps, Math.round(Number(rawCompleted) || 0)));
   const total = challenge.totals.laps;
   const trackerState = location.state || (location.active ? 'climbing' : 'offline');
+  const gain = Math.max(0, Math.round(Number(location.manual_gain_m) || 0));
 
   dot.classList.toggle('on', fresh);
   when.textContent = Number.isFinite(age) ? `updated ${agoText(age)}` : '';
   summary.hidden = false;
-  $('#laps-completed').textContent = completed;
+  $('#gain-completed').textContent = `${num(gain)} m`;
+  lapCount.hidden = false;
+  lapCount.textContent = `${completed} of ${total} climbs finished`;
   progress.hidden = false;
-  $('#progress-bar').style.width = `${(completed / total) * 100}%`;
-  $('#progress-label').textContent = `${completed} of ${total} climbs finished`;
+  $('#progress-bar').style.width = `${Math.min(100, (gain / challenge.target_m) * 100)}%`;
+  $('#progress-label').textContent = `${num(gain)} of ${num(challenge.target_m)} m`;
 
   if (completed >= total) {
     status.textContent = 'All ten climbs are finished!';

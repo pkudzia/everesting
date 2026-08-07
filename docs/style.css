@@ -302,6 +302,7 @@ a { color: oklch(48% 0.16 235); }
   letter-spacing: -0.05em;
 }
 .lap-summary span { font-size: var(--text-md); font-weight: 650; }
+.lap-count { margin: var(--space-sm) 0 0; font-size: var(--text-md); font-weight: 700; }
 
 .progress {
   position: relative; margin: var(--space-sm) 0 0; height: 30px;

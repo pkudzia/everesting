@@ -17,34 +17,9 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
-
-<div class="nav-wrap"><nav class="nav" aria-label="Main">
-  <a class="wordmark" href="#">
-    <span class="peak" aria-hidden="true"><span class="slope"></span><span class="flag"></span></span>
-    <span class="wordmark-text">Everesting on Foot</span>
-  </a>
-  <div class="nav-links">
-    <a class="btn btn--sm btn--outline" href="#comments">Comments</a>
-    <a class="btn btn--sm" href="#live">Track Pawel</a>
-  </div>
-</nav></div>
-
-<header class="hero-band">
-  <div class="band-inner section hero">
-    <div class="figure-wrap">
-      <div class="figure" id="hero-figure" data-target="9000">0<span class="unit">m</span></div>
-    </div>
-    <div class="hero-words">
-      <p class="mono-label hero-date">Friday · August 7 · 2026</p>
-      <h1>Pawel is climbing the height of Everest.</h1>
-      <p class="sub">Ten climbs up the Sea to Sky Gondola trails in one day.
-      Follow his progress below.</p>
-    </div>
-  </div>
-</header>
 
 <section class="section--band band--pear" id="live">
   <div class="band-inner section live">
@@ -53,10 +28,11 @@
       <h2>Live progress</h2>
       <span class="live-when" id="live-when"></span>
     </div>
-    <div class="lap-summary" id="lap-summary" hidden>
-      <strong id="laps-completed">0</strong>
-      <span>of 10 climbs finished</span>
+    <div class="lap-summary" id="gain-summary" hidden>
+      <strong id="gain-completed">0 m</strong>
+      <span>of 9,000 m climbed</span>
     </div>
+    <p class="lap-count" id="lap-count" hidden>0 of 10 climbs finished</p>
     <p class="live-status" id="live-status">Checking for an update…</p>
     <div class="progress" id="progress" hidden>
       <div class="progress-bar" id="progress-bar"></div>
@@ -94,13 +70,16 @@
   </div>
 </section>
 
-<footer class="footer-simple section">
-  <p>Routes drawn in Strava. Map data © OpenStreetMap contributors.</p>
-  <p class="footer-name">Pawel Kudzia</p>
-</footer>
+<section class="section facts" id="facts">
+  <div class="fact-card">
+    <p class="mono-label">From the biomechanics department</p>
+    <p id="fact-text"></p>
+    <button class="btn btn--sm btn--outline" id="fact-next" type="button">Another one</button>
+  </div>
+</section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="app.js?v=17"></script>
+<script src="app.js?v=18"></script>
 </body>
 </html>

@@ -38,6 +38,9 @@
     box-shadow: 0 4px 0 var(--pear-deep); font-size: 18px;
   }
   #start-climb { margin-top: 12px; background: var(--mint); color: var(--ink); display: none; }
+  .gain-field { margin-top: 18px; }
+  .gain-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .gain-row button { width: auto; padding-inline: 18px; background: var(--ink); color: var(--paper); }
   #finish:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--pear-deep); }
   #undo { margin-top: 14px; padding: 8px; background: transparent; color: var(--dim); font-size: 13px; }
   #start { margin-top: 12px; background: var(--ink); color: var(--paper); }
@@ -67,6 +70,13 @@
   <button id="finish" type="button">Finished climb — on gondola</button>
   <button id="start-climb" type="button">Start next climb</button>
   <button id="undo" type="button">Undo last tap</button>
+  <div class="gain-field">
+    <label for="gain">Total metres climbed</label>
+    <div class="gain-row">
+      <input id="gain" type="number" min="0" max="20000" step="1" inputmode="numeric" placeholder="e.g. 920">
+      <button id="update-gain" type="button">Update</button>
+    </div>
+  </div>
 </div>
 
 <div class="card">
@@ -89,6 +99,8 @@
   const stop = document.getElementById('stop');
   const finish = document.getElementById('finish');
   const startClimb = document.getElementById('start-climb');
+  const gainInput = document.getElementById('gain');
+  const updateGain = document.getElementById('update-gain');
   let watchId = null;
   let pushTimer = null;
   let wakeLock = null;
@@ -135,6 +147,7 @@
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
     if (Number.isFinite(data.completed_laps)) completed.textContent = data.completed_laps;
+    if (Number.isFinite(data.gained_m)) gainInput.value = data.gained_m;
     if (data.state) showState(data.state, data.completed_laps);
     return data;
   }
@@ -168,6 +181,22 @@
 
   document.getElementById('finish').onclick = () => lapAction('finish_lap');
   document.getElementById('start-climb').onclick = () => lapAction('start_climb');
+  updateGain.onclick = async () => {
+    const gained = Math.round(Number(gainInput.value));
+    if (!Number.isFinite(gained) || gained < 0 || gained > 20000) {
+      say('Enter total metres between 0 and 20,000.', 'bad');
+      return;
+    }
+    updateGain.disabled = true;
+    say('Updating metres…');
+    try {
+      const data = await send({ action: 'set_gain', gained_m: gained });
+      say(`${data.gained_m.toLocaleString()} m climbed.`, 'good');
+    } catch (error) {
+      if (error.message !== 'missing key') say(`Update failed: ${error.message}`, 'bad');
+    }
+    updateGain.disabled = false;
+  };
   document.getElementById('undo').onclick = () => lapAction('undo_lap');
   keyInput.addEventListener('change', loadCount);
   if (keyInput.value) loadCount();

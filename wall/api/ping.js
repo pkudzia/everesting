@@ -38,9 +38,10 @@ export default async function handler(req, res) {
       result: 'ok',
       completed_laps: completedLaps(current.location),
       state: trackerState(current.location),
+      gained_m: manualGain(current.location),
     });
   }
-  if (['finish_lap', 'start_climb', 'undo_lap', 'offline'].includes(body.action)) {
+  if (['finish_lap', 'start_climb', 'set_gain', 'undo_lap', 'offline'].includes(body.action)) {
     return handleAction(body, token, res);
   }
 
@@ -99,6 +100,7 @@ export default async function handler(req, res) {
     completed_laps: state.completed,
     lap: Math.min(TOTAL_LAPS, state.completed + 1),
     state: previous.state === 'gondola' ? 'gondola' : 'climbing',
+    manual_gain_m: manualGain(previous),
     msg: previous.msg || '',
     time: new Date(newest.t).toISOString(),
     lastAlt: state.lastAlt,
@@ -117,8 +119,16 @@ async function handleAction(body, token, res) {
     if (!current.ok) return res.status(502).json({ error: `GitHub read ${current.status}` });
     const completedBefore = completedLaps(current.location);
     let completed = completedBefore;
+    let gain = manualGain(current.location);
     if (body.action === 'finish_lap') completed = Math.min(TOTAL_LAPS, completed + 1);
     if (body.action === 'undo_lap') completed = Math.max(0, completed - 1);
+    if (body.action === 'set_gain') {
+      const entered = Math.round(Number(body.gained_m));
+      if (!Number.isFinite(entered) || entered < 0 || entered > 20_000) {
+        return res.status(400).json({ error: 'Enter metres between 0 and 20,000.' });
+      }
+      gain = entered;
+    }
 
     let state = trackerState(current.location);
     if (body.action === 'finish_lap') state = 'gondola';
@@ -131,12 +141,15 @@ async function handleAction(body, token, res) {
       completed_laps: completed,
       lap: Math.min(TOTAL_LAPS, completed + 1),
       state,
+      manual_gain_m: gain,
       time: new Date().toISOString(),
     };
     if (typeof body.msg === 'string') payload.msg = body.msg.trim().slice(0, 140);
 
     const put = await writeLocation(token, current.file.sha, payload, `live: ${body.action}`);
-    if (put.ok) return res.status(200).json({ result: 'ok', completed_laps: completed, state });
+    if (put.ok) {
+      return res.status(200).json({ result: 'ok', completed_laps: completed, state, gained_m: gain });
+    }
     if (put.status !== 409 && put.status !== 422) {
       return res.status(502).json({ error: `GitHub write ${put.status}` });
     }
@@ -196,6 +209,11 @@ function trackerState(location) {
     return location.state;
   }
   return location.active ? 'climbing' : 'offline';
+}
+
+function manualGain(location) {
+  const value = Math.round(Number(location.manual_gain_m) || 0);
+  return Math.max(0, Math.min(20_000, value));
 }
 
 function numOrNull(value) { return Number.isFinite(value) ? value : null; }
