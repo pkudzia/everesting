@@ -62,9 +62,13 @@ export default async function handler(req, res) {
     lastGainT: numOrNull(previous.lastGainT),
   };
   const lastSeen = previous.time ? Date.parse(previous.time) : 0;
+  const freshPoints = points.filter((point) => point.t > lastSeen);
+  if (!freshPoints.length) return res.status(200).json({ result: 'ok' });
+  // After an event-day reset, Overland may resend a large buffered batch with
+  // fresh timestamps. Seed the new trail from only its newest point once.
+  const pointsToProcess = previous.reset_pending ? freshPoints.slice(-1) : freshPoints;
 
-  for (const point of points) {
-    if (point.t <= lastSeen) continue;
+  for (const point of pointsToProcess) {
     if (point.alt != null) {
       if (state.lastAlt != null) {
         const change = point.alt - state.lastAlt;
@@ -89,7 +93,7 @@ export default async function handler(req, res) {
     }
   }
 
-  const newest = points[points.length - 1];
+  const newest = freshPoints[freshPoints.length - 1];
   const payload = {
     active: true,
     lat: +newest.lat.toFixed(5),
@@ -107,6 +111,7 @@ export default async function handler(req, res) {
     time: new Date(newest.t).toISOString(),
     lastAlt: state.lastAlt,
     lastGainT: state.lastGainT,
+    reset_pending: false,
   };
 
   const put = await writeLocation(token, file.sha, payload, 'live: location');
