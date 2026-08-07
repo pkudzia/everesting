@@ -56,7 +56,7 @@
 <p class="sub">Keep this page open for tomorrow.</p>
 
 <div class="card">
-  <label for="key">Tracker key</label>
+  <label for="key">Tracker key or receiver URL</label>
   <input id="key" type="password" autocomplete="off" placeholder="Paste once">
   <p class="small">Saved on this phone.</p>
 </div>
@@ -103,10 +103,22 @@
   };
 
   const key = () => {
-    const value = keyInput.value.trim();
+    let value = keyInput.value.trim();
     if (!value) {
       say('Paste the tracker key first.', 'bad');
       return null;
+    }
+    if (/^https?:\/\//i.test(value)) {
+      try {
+        value = new URL(value).searchParams.get('key') || '';
+      } catch {
+        value = '';
+      }
+      if (!value) {
+        say('That receiver URL does not contain a tracker key.', 'bad');
+        return null;
+      }
+      keyInput.value = value;
     }
     localStorage.setItem('everesting_ping_key', value);
     return value;
