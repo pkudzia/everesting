@@ -77,6 +77,13 @@
       <button id="update-gain" type="button">Update</button>
     </div>
   </div>
+  <div class="gain-field">
+    <label for="distance">Total distance (km)</label>
+    <div class="gain-row">
+      <input id="distance" type="number" min="0" max="200" step="0.1" inputmode="decimal" placeholder="e.g. 4.3">
+      <button id="update-distance" type="button">Update</button>
+    </div>
+  </div>
 </div>
 
 <div class="card">
@@ -101,6 +108,8 @@
   const startClimb = document.getElementById('start-climb');
   const gainInput = document.getElementById('gain');
   const updateGain = document.getElementById('update-gain');
+  const distanceInput = document.getElementById('distance');
+  const updateDistance = document.getElementById('update-distance');
   let watchId = null;
   let pushTimer = null;
   let wakeLock = null;
@@ -148,6 +157,7 @@
     if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
     if (Number.isFinite(data.completed_laps)) completed.textContent = data.completed_laps;
     if (Number.isFinite(data.gained_m)) gainInput.value = data.gained_m;
+    if (Number.isFinite(data.distance_km)) distanceInput.value = data.distance_km;
     if (data.state) showState(data.state, data.completed_laps);
     return data;
   }
@@ -196,6 +206,22 @@
       if (error.message !== 'missing key') say(`Update failed: ${error.message}`, 'bad');
     }
     updateGain.disabled = false;
+  };
+  updateDistance.onclick = async () => {
+    const distance = Number(distanceInput.value);
+    if (!Number.isFinite(distance) || distance < 0 || distance > 200) {
+      say('Enter total distance between 0 and 200 km.', 'bad');
+      return;
+    }
+    updateDistance.disabled = true;
+    say('Updating distance…');
+    try {
+      const data = await send({ action: 'set_distance', distance_km: distance });
+      say(`${data.distance_km.toFixed(1)} km travelled.`, 'good');
+    } catch (error) {
+      if (error.message !== 'missing key') say(`Update failed: ${error.message}`, 'bad');
+    }
+    updateDistance.disabled = false;
   };
   document.getElementById('undo').onclick = () => lapAction('undo_lap');
   keyInput.addEventListener('change', loadCount);

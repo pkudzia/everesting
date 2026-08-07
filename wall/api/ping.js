@@ -39,9 +39,10 @@ export default async function handler(req, res) {
       completed_laps: completedLaps(current.location),
       state: trackerState(current.location),
       gained_m: manualGain(current.location),
+      distance_km: manualDistance(current.location),
     });
   }
-  if (['finish_lap', 'start_climb', 'set_gain', 'undo_lap', 'offline'].includes(body.action)) {
+  if (['finish_lap', 'start_climb', 'set_gain', 'set_distance', 'undo_lap', 'offline'].includes(body.action)) {
     return handleAction(body, token, res);
   }
 
@@ -101,6 +102,7 @@ export default async function handler(req, res) {
     lap: Math.min(TOTAL_LAPS, state.completed + 1),
     state: previous.state === 'gondola' ? 'gondola' : 'climbing',
     manual_gain_m: manualGain(previous),
+    manual_distance_km: manualDistance(previous),
     msg: previous.msg || '',
     time: new Date(newest.t).toISOString(),
     lastAlt: state.lastAlt,
@@ -120,6 +122,7 @@ async function handleAction(body, token, res) {
     const completedBefore = completedLaps(current.location);
     let completed = completedBefore;
     let gain = manualGain(current.location);
+    let distance = manualDistance(current.location);
     if (body.action === 'finish_lap') completed = Math.min(TOTAL_LAPS, completed + 1);
     if (body.action === 'undo_lap') completed = Math.max(0, completed - 1);
     if (body.action === 'set_gain') {
@@ -128,6 +131,13 @@ async function handleAction(body, token, res) {
         return res.status(400).json({ error: 'Enter metres between 0 and 20,000.' });
       }
       gain = entered;
+    }
+    if (body.action === 'set_distance') {
+      const entered = Number(body.distance_km);
+      if (!Number.isFinite(entered) || entered < 0 || entered > 200) {
+        return res.status(400).json({ error: 'Enter distance between 0 and 200 km.' });
+      }
+      distance = Math.round(entered * 100) / 100;
     }
 
     let state = trackerState(current.location);
@@ -142,13 +152,17 @@ async function handleAction(body, token, res) {
       lap: Math.min(TOTAL_LAPS, completed + 1),
       state,
       manual_gain_m: gain,
+      manual_distance_km: distance,
       time: new Date().toISOString(),
     };
     if (typeof body.msg === 'string') payload.msg = body.msg.trim().slice(0, 140);
 
     const put = await writeLocation(token, current.file.sha, payload, `live: ${body.action}`);
     if (put.ok) {
-      return res.status(200).json({ result: 'ok', completed_laps: completed, state, gained_m: gain });
+      return res.status(200).json({
+        result: 'ok', completed_laps: completed, state,
+        gained_m: gain, distance_km: distance,
+      });
     }
     if (put.status !== 409 && put.status !== 422) {
       return res.status(502).json({ error: `GitHub write ${put.status}` });
@@ -214,6 +228,11 @@ function trackerState(location) {
 function manualGain(location) {
   const value = Math.round(Number(location.manual_gain_m) || 0);
   return Math.max(0, Math.min(20_000, value));
+}
+
+function manualDistance(location) {
+  const value = Number(location.manual_distance_km) || 0;
+  return Math.max(0, Math.min(200, Math.round(value * 100) / 100));
 }
 
 function numOrNull(value) { return Number.isFinite(value) ? value : null; }

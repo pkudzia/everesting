@@ -89,6 +89,7 @@ function setLive(location) {
   const progress = $('#progress');
   const summary = $('#gain-summary');
   const lapCount = $('#lap-count');
+  const distanceCount = $('#distance-count');
 
   if (!location) {
     dot.classList.remove('on');
@@ -97,6 +98,7 @@ function setLive(location) {
     progress.hidden = true;
     summary.hidden = true;
     lapCount.hidden = true;
+    distanceCount.hidden = true;
     return;
   }
 
@@ -108,6 +110,7 @@ function setLive(location) {
   const total = challenge.totals.laps;
   const trackerState = location.state || (location.active ? 'climbing' : 'offline');
   const gain = Math.max(0, Math.round(Number(location.manual_gain_m) || 0));
+  const distance = Math.max(0, Number(location.manual_distance_km) || 0);
 
   dot.classList.toggle('on', fresh);
   when.textContent = Number.isFinite(age) ? `updated ${agoText(age)}` : '';
@@ -115,6 +118,8 @@ function setLive(location) {
   $('#gain-completed').textContent = `${num(gain)} m`;
   lapCount.hidden = false;
   lapCount.textContent = `${completed} of ${total} climbs finished`;
+  distanceCount.hidden = false;
+  distanceCount.textContent = `${distance.toFixed(1)} km travelled`;
   progress.hidden = false;
   $('#progress-bar').style.width = `${Math.min(100, (gain / challenge.target_m) * 100)}%`;
   $('#progress-label').textContent = `${num(gain)} of ${num(challenge.target_m)} m`;

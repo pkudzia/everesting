@@ -72,7 +72,9 @@ At each gondola ride, tap **Finished climb — on gondola**. The public page wil
 show the gondola state. At the bottom, tap **Start next climb**. An undo button
 is available for accidental taps. Enter the watch's total ascent in **Total
 metres climbed** and tap **Update**; this manual number drives the public
-9,000 m progress bar and is not overwritten by GPS.
+9,000 m progress bar and is not overwritten by GPS. Enter the watch's cumulative
+kilometres in **Total distance** and update that separately; it is also preserved
+across GPS updates.
 
 ## Comments and photos (the cheer wall)
 
