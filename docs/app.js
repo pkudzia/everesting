@@ -19,6 +19,7 @@ const WALL_POLL_MS = 60_000;
 let map;
 let liveMarker;
 let liveTrail;
+let liveTrailCasing;
 let challenge;
 
 init();
@@ -151,16 +152,27 @@ function agoText(milliseconds) {
 }
 
 function renderTrail(points) {
-  if (!Array.isArray(points) || points.length < 2) return;
+  if (!Array.isArray(points) || points.length < 2) {
+    if (liveTrail && map.hasLayer(liveTrail)) map.removeLayer(liveTrail);
+    if (liveTrailCasing && map.hasLayer(liveTrailCasing)) map.removeLayer(liveTrailCasing);
+    return;
+  }
   if (!liveTrail) {
+    liveTrailCasing = L.polyline(points, {
+      color: '#fff', weight: 9, opacity: 0.95,
+      dashArray: '1 12', lineCap: 'round', lineJoin: 'round',
+    }).addTo(map);
     liveTrail = L.polyline(points, {
-      color: '#22262e', weight: 4, opacity: 0.9,
-      dashArray: '0.1 9', lineCap: 'round', lineJoin: 'round',
+      color: '#ff3b30', weight: 6, opacity: 1,
+      dashArray: '1 12', lineCap: 'round', lineJoin: 'round',
     }).addTo(map);
   } else {
+    liveTrailCasing.setLatLngs(points);
     liveTrail.setLatLngs(points);
+    if (!map.hasLayer(liveTrailCasing)) liveTrailCasing.addTo(map);
     if (!map.hasLayer(liveTrail)) liveTrail.addTo(map);
   }
+  liveTrailCasing.bringToFront();
   liveTrail.bringToFront();
 }
 
