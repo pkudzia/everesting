@@ -17,7 +17,7 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
 
@@ -30,24 +30,31 @@
 
 <section class="section--band band--pear" id="live">
   <div class="band-inner section live">
-    <div class="live-head">
-      <span class="live-dot" id="live-dot" aria-hidden="true"></span>
-      <h2>Live progress</h2>
-      <span class="live-when" id="live-when"></span>
+    <div class="live-grid">
+      <div class="live-main">
+        <div class="live-head">
+          <span class="live-dot" id="live-dot" aria-hidden="true"></span>
+          <h2>Live progress</h2>
+          <span class="live-when" id="live-when"></span>
+        </div>
+        <div class="lap-summary" id="gain-summary" hidden>
+          <strong id="gain-completed">0 m</strong>
+          <span>of 9,000 m climbed</span>
+        </div>
+        <p class="lap-count" id="lap-count" hidden>0 of 10 climbs finished</p>
+        <p class="distance-count" id="distance-count" hidden>0.0 km travelled</p>
+        <p class="live-status" id="live-status">Checking for an update…</p>
+        <div class="progress" id="progress" hidden>
+          <div class="progress-bar" id="progress-bar"></div>
+          <div class="progress-label" id="progress-label"></div>
+        </div>
+        <p class="live-hint">The map and status update from Pawel's phone. He marks a
+        climb finished when he reaches the gondola at the top.</p>
+      </div>
+      <figure class="live-photo live-photo--small">
+        <img src="pawel.jpg" alt="Pawel in a hooded robe with mountains behind him" width="900" height="675">
+      </figure>
     </div>
-    <div class="lap-summary" id="gain-summary" hidden>
-      <strong id="gain-completed">0 m</strong>
-      <span>of 9,000 m climbed</span>
-    </div>
-    <p class="lap-count" id="lap-count" hidden>0 of 10 climbs finished</p>
-    <p class="distance-count" id="distance-count" hidden>0.0 km travelled</p>
-    <p class="live-status" id="live-status">Checking for an update…</p>
-    <div class="progress" id="progress" hidden>
-      <div class="progress-bar" id="progress-bar"></div>
-      <div class="progress-label" id="progress-label"></div>
-    </div>
-    <p class="live-hint">The map and status update from Pawel's phone. He marks a
-    climb finished when he reaches the gondola at the top.</p>
   </div>
 </section>
 

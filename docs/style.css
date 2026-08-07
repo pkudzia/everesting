@@ -696,6 +696,7 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
   max-width: 320px;
   justify-self: end;
 }
+.live-photo--small { max-width: 220px; }
 .live-photo:hover { transform: rotate(0); }
 .live-photo img {
   width: 100%; height: auto; display: block;
@@ -709,7 +710,7 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 }
 @media (max-width: 700px) {
   .live-grid { grid-template-columns: minmax(0, 1fr); }
-  .live-photo { justify-self: start; max-width: 260px; }
+  .live-photo { justify-self: start; max-width: 180px; }
 }
 
 /* ---------- calories + biomechanics facts ---------- */
