@@ -66,6 +66,10 @@ h1, h2, h3 {
 
 a { color: oklch(48% 0.16 235); }
 
+.event-title { padding-block: var(--space-md); }
+.event-title h1 { margin: 0; font-size: clamp(1.65rem, 5vw, 2.35rem); }
+.event-title p { margin: 3px 0 0; color: oklch(20% 0.012 250 / 0.68); font-size: var(--text-sm); }
+
 /* one shell width model everywhere — bands carry only background + block padding */
 .section {
   max-width: var(--shell);
