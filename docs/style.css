@@ -783,7 +783,7 @@ td.crew-names { font-size: 13px; font-weight: 500; white-space: normal; min-widt
 
 /* ---------- mobile optimization pass ---------- */
 
-/* Sticky nav so Track Pawel / Leave a comment are always one tap away. */
+/* Sticky nav keeps the final result and comments one tap away. */
 .nav-wrap {
   position: sticky; top: 0; z-index: 1000;
   background: oklch(97% 0.012 95 / 0.85);
